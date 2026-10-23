@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Nuclea Monitor{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <div class="brand">núclea<span>·</span>monitor</div>
+  <nav>
+    <a href="{{ url_for('conversar') }}" class="{{ 'on' if aba == 'conversar' }}">Conversar com as bases</a>
+    <a href="{{ url_for('uso') }}" class="{{ 'on' if aba == 'uso' }}">Uso e custo</a>
+    <a href="{{ url_for('agentes') }}" class="{{ 'on' if aba == 'agentes' }}">Agentes por CNPJ</a>
+    <a href="{{ url_for('carteira') }}" class="{{ 'on' if aba == 'carteira' }}">Carteira de crédito</a>
+  </nav>
+  <div class="tag">Workshop · dados sintéticos</div>
+</header>
+<main>{% block content %}{% endblock %}</main>
+<script>
+function fmtNum(v){if(v===null||v===undefined)return '';const s=String(v);
+  if(/^-?\d+(\.\d+)?(E[+-]?\d+)?$/i.test(s)&&(/[.E]/i.test(s)||s.replace('-','').length<8)){const n=Number(s);if(isFinite(n))return n.toLocaleString('pt-BR',{maximumFractionDigits:2})}
+  return s}
+function cnpjMask(c){c=(c||'').replace(/\D/g,'');return c.length===14?`${c.slice(0,2)}.${c.slice(2,5)}.${c.slice(5,8)}/${c.slice(8,12)}-${c.slice(12)}`:c}
+function autocompleteCnpj(input, onPick){
+  const box=document.createElement('div');box.className='sug';box.hidden=true;input.parentNode.appendChild(box);let t;
+  input.addEventListener('input',()=>{clearTimeout(t);const v=input.value.trim();if(v.length<3){box.hidden=true;return}
+    t=setTimeout(async()=>{const r=await fetch('/api/empresas?q='+encodeURIComponent(v));const rows=await r.json();
+      box.innerHTML=rows.map(e=>`<div data-c="${e.cnpj}"><b>${cnpjMask(e.cnpj)}</b> · ${e.razao_social} <span class="muted">(${e.porte}, ${e.uf})</span></div>`).join('');
+      box.hidden=!rows.length;box.querySelectorAll('div').forEach(d=>d.onclick=()=>{input.value=d.dataset.c;box.hidden=true;onPick&&onPick(d.dataset.c)})},300)});
+  document.addEventListener('click',e=>{if(!input.parentNode.contains(e.target))box.hidden=true});
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

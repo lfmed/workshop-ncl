@@ -1,0 +1,22 @@
+/* Tokens de cor Nuclea.
+   Oficiais: extraidos do Codigo de Etica e Conduta Nuclea (2022, PDF vetorial).
+   Derivados (*-escuro): NAO oficiais, criados para texto acessivel sobre fundo branco (WCAG AA). */
+:root {
+  /* Base (oficial) */
+  --nuclea-preto: #000000;
+  --nuclea-branco: #FFFFFF;
+  /* Destaques (oficial) */
+  --nuclea-verde-agua: #67FFCC;
+  --nuclea-lilas: #CC99FE;
+  --nuclea-lima: #DBED1F;
+  --nuclea-lima-vivo: #D4EE00;     /* variacao do lima vista em grafismos */
+  /* Texto (oficial, usado no corpo do documento) */
+  --nuclea-azul-noite: #0E2233;
+  --nuclea-grafite: #464646;
+  /* Derivados para fundo claro (nao oficiais) */
+  --nuclea-lilas-escuro: #6B2FC0;  /* 7.5:1 sobre branco */
+  --nuclea-verde-escuro: #00795A;  /* 5.4:1 sobre branco */
+  --nuclea-lima-escuro: #5E6600;   /* 6.2:1 sobre branco */
+  /* Tipografia (sem fonte oficial confirmada; documento usa Calibri) */
+  --nuclea-fonte: "Calibri", "Carlito", "Segoe UI", -apple-system, Roboto, sans-serif;
+}

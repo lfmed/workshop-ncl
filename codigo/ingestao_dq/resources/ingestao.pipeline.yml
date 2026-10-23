@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    ingestao_dq:
+      name: nuclea_lab_ingestao_dq
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      continuous: false
+      photon: true
+      channel: CURRENT
+      root_path: ../src/ingestao_pipeline
+      libraries:
+        - glob:
+            include: ../src/ingestao_pipeline/transformations/**
+      configuration:
+        landing_path: /Volumes/${var.catalog}/${var.schema}/landing
+      # event log publicado no UC -> base das metricas de DQ (vw_dq_*)
+      event_log:
+        catalog: ${var.catalog}
+        schema: ${var.schema}
+        name: event_log_ingestao

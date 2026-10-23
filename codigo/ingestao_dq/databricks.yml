@@ -1,0 +1,21 @@
+# Tema 6 (ingestor massivo) + Tema 4 (Data Quality) - workshop Nuclea
+bundle:
+  name: nuclea_lab_ingestao_dq
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Catalogo do workshop
+    default: workshop_nuclea_genie_catalog
+  schema:
+    description: Schema de laboratorio (bronze/silver/gold/quarentena/DQ)
+    default: lab_ingestao
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

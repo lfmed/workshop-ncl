@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block content %}{% set k = r.kpi %}{% set fx = r.precos.cotacao_brl %}
+<h1>Uso e custo</h1>
+<p class="sub">Requisições feitas pelo app (salas Genie, LLM do parecer e SQL de cadastro) e uma estimativa de custo calculada com os preços de referência no fim da página.</p>
+
+<div class="filters">
+  {% for p, n in [('24h', 'Últimas 24h'), ('7d', '7 dias'), ('30d', '30 dias'), ('tudo', 'Tudo')] %}
+  <a href="?periodo={{ p }}" class="{{ 'on' if periodo == p }}">{{ n }}</a>
+  {% endfor %}
+</div>
+
+<div class="hero">
+  <div class="card">
+    <div class="muted">Custo variável estimado no período</div>
+    <div class="big">{{ (k.custo_var * fx) | brl }}</div>
+    <div class="muted">US$ {{ '%.4f' | format(k.custo_var) }} · warehouse + tokens de LLM{% if r.precos.genie_usd_mensagem %} + Genie{% endif %}</div>
+    {% if k.pendentes %}<div class="note" style="margin-top:6px">{{ k.pendentes }} query(s) aguardando métricas do query history; o custo de warehouse delas entra em instantes.</div>{% endif %}
+  </div>
+  <div class="kpis">
+    <div class="card kpi"><div class="lbl">Requisições</div><div class="val">{{ k.total | milhar }}</div><div class="det">{{ k.falhas }} com falha</div></div>
+    <div class="card kpi"><div class="lbl">Perguntas às salas Genie</div><div class="val">{{ k.genie | milhar }}</div><div class="det">{{ '%.0f' | format(k.seg_warehouse) }} s de warehouse</div></div>
+    <div class="card kpi"><div class="lbl">Pareceres do LLM</div><div class="val">{{ k.llm | milhar }}</div><div class="det">{{ (k.tok_in + k.tok_out) | milhar }} tokens</div></div>
+    <div class="card kpi"><div class="lbl">Consultas SQL diretas</div><div class="val">{{ k.sql | milhar }}</div><div class="det">ficha e busca de CNPJ</div></div>
+    <div class="card kpi"><div class="lbl">Custo médio por análise de CNPJ</div><div class="val">{{ (r.custo_medio_exec * fx) | brl }}</div><div class="det">{{ r.n_exec }} análise(s) medida(s)</div></div>
+  </div>
+</div>
+
+<div class="two">
+  <div class="card">
+    <h2>Requisições por dia</h2>
+    <div class="chart" id="chReq"></div>
+  </div>
+  <div class="card">
+    <h2>Custo variável estimado por dia (R$)</h2>
+    <div class="chart" id="chCusto"></div>
+  </div>
+</div>
+
+<div class="two" style="margin-top:16px">
+  <div class="card">
+    <h2>Por tipo e sala</h2>
+    <div class="tbl" style="max-height:none"><table>
+      <thead><tr><th>Tipo</th><th>Sala</th><th class="num">Requisições</th><th class="num">Latência média</th><th class="num">Warehouse (s)</th><th class="num">Tokens</th><th class="num">Custo (R$)</th></tr></thead>
+      <tbody>{% for t in r.por_tipo %}
+        <tr><td>{{ {'genie': 'Genie', 'llm': 'LLM', 'sql': 'SQL'}.get(t.tipo, t.tipo) }}</td>
+          <td>{{ SALAS[t.sala].titulo if t.sala in SALAS else ('Parecer' if t.sala == 'parecer' else '—') }}</td>
+          <td class="num">{{ t.n }}</td><td class="num">{{ ('%.1f' | format((t.lat_ms or 0) / 1000)).replace('.', ',') }} s</td>
+          <td class="num">{{ t.seg_wh }}</td><td class="num">{{ (t.tok_in + t.tok_out) | milhar if t.tok_in + t.tok_out else '—' }}</td>
+          <td class="num">{{ (t.custo * fx) | brl(4) }}</td></tr>
+      {% else %}<tr><td colspan="7" class="muted">Sem requisições no período.</td></tr>{% endfor %}</tbody>
+    </table></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Por origem</h2>
+      <table><thead><tr><th>Origem</th><th class="num">Requisições</th><th class="num">Custo (R$)</th></tr></thead>
+        <tbody>{% for o in r.por_origem %}
+          <tr><td>{{ {'chat': 'Conversa (aba Conversar)', 'agente_manual': 'Agente - execução manual', 'agente_agendada': 'Agente - execução agendada',
+                      'ficha': 'Ficha cadastral', 'busca': 'Busca de CNPJ'}.get(o.origem, o.origem) }}</td>
+              <td class="num">{{ o.n }}</td><td class="num">{{ (o.custo * fx) | brl(4) }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="card">
+      <h2>Por usuário</h2>
+      <table><thead><tr><th>Usuário</th><th class="num">Requisições</th><th class="num">Custo (R$)</th></tr></thead>
+        <tbody>{% for u in r.por_usuario %}
+          <tr><td>{{ u.usuario if u.usuario != '-' else 'agentes / sistema' }}</td><td class="num">{{ u.n }}</td><td class="num">{{ (u.custo * fx) | brl(4) }}</td></tr>
+        {% else %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}</tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Projeção mensal</h2>
+  <div class="two">
+    <div>
+      <table><thead><tr><th>Agente (CNPJ)</th><th>Frequência</th><th class="num">Execuções/mês</th><th class="num">Custo por execução</th><th class="num">Custo/mês</th></tr></thead>
+        <tbody>{% for m in r.monitores %}
+          <tr><td><a href="{{ url_for('painel', cnpj=m.cnpj) }}">{{ m.cnpj | cnpj }}</a>{% if m.nome %} <span class="muted">· {{ m.nome }}</span>{% endif %}</td>
+              <td>{{ FREQ.get(m.frequencia_horas, m.frequencia_horas ~ 'h') }}{% if not m.ativo %} <span class="pill">pausado</span>{% endif %}</td>
+              <td class="num">{{ '%.0f' | format(m.exec_mes) }}</td><td class="num">{{ (m.custo_exec * fx) | brl(4) }}</td>
+              <td class="num">{{ (m.custo_mes * fx) | brl }}</td></tr>
+        {% else %}<tr><td colspan="5" class="muted">Nenhum agente cadastrado.</td></tr>{% endfor %}</tbody></table>
+    </div>
+    <div class="kv" style="grid-template-columns: 1fr auto; font-size:14px">
+      <div>Agentes ativos (variável)</div><div class="num"><b>{{ (r.agentes_mes * fx) | brl }}</b></div>
+      <div>App + Lakebase ligados 24x7 (fixo)</div><div class="num"><b>{{ (r.fixo_mes * fx) | brl }}</b></div>
+      <div>Total mensal estimado</div><div class="num"><b>{{ ((r.agentes_mes + r.fixo_mes) * fx) | brl }}</b></div>
+      <div class="note" style="grid-column: 1 / -1">Conversas no chat não entram na projeção, porque dependem do uso. Use o custo médio por pergunta da tabela "Por tipo e sala" para estimá-las.</div>
+    </div>
+  </div>
+</div>
+
+<form class="card precos" style="margin-top:16px" method="post" action="{{ url_for('uso_precos') }}">
+  <h2>Preços de referência</h2>
+  <p class="note">Valores de lista aproximados para simulação; ajuste conforme o contrato do cliente.
+    O custo de warehouse é <b>atribuído</b> pelo tempo de execução de cada query (query history). Na fatura real, o warehouse serverless também cobra o tempo ocioso até o auto-stop.
+    O custo da Genie corresponde à computação do warehouse que ela usa.</p>
+  <input type="hidden" name="_periodo" value="{{ periodo }}">
+  <div class="kv" style="grid-template-columns: 1fr auto; max-width: 620px">
+    {% for p in precos %}
+      <div>{{ p.descricao }}</div><div><input type="text" name="{{ p.chave }}" value="{{ '%g' | format(p.valor | float) }}"></div>
+    {% endfor %}
+  </div>
+  <button type="submit" style="margin-top:12px">Salvar preços</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const DIAS = {{ r.por_dia | tojson }}, FX = {{ r.precos.cotacao_brl }};
+const brl = v => v.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: v < 1 ? 4 : 2, maximumFractionDigits: v < 1 ? 4 : 2});
+const compact = v => v >= 1000 ? (v / 1000).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' mil' : v.toLocaleString('pt-BR', {maximumFractionDigits: 4});
+const dm = d => d.slice(8, 10) + '/' + d.slice(5, 7);
+
+function niceMax(v) { if (v <= 0) return 1; const e = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 2, 2.5, 5, 10]) if (m * e >= v) return m * e; }
+
+function columns(el, rows, val, fmtTick, fmtTip) {
+  if (!rows.length) { el.innerHTML = '<p class="muted">Sem dados no período.</p>'; return; }
+  const W = el.clientWidth, H = el.clientHeight, L = 54, R = 8, T = 18, B = 24;
+  const max = niceMax(Math.max(...rows.map(val))), band = (W - L - R) / rows.length, bw = Math.min(24, band * 0.7);
+  const y = v => T + (H - T - B) * (1 - v / max), ns = 'http://www.w3.org/2000/svg';
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img"><g class="grid axis">`;
+  for (let i = 0; i <= 4; i++) { const v = max * i / 4, yy = y(v); svg += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}"/><text x="${L - 8}" y="${yy + 4}" text-anchor="end">${fmtTick(v)}</text>`; }
+  svg += `</g><g class="axis">`;
+  const step = Math.ceil(rows.length / 10);
+  rows.forEach((r, i) => { if (i % step === 0) svg += `<text x="${L + band * i + band / 2}" y="${H - 6}" text-anchor="middle">${dm(r.dia)}</text>`; });
+  svg += `</g>`;
+  const iMax = rows.reduce((a, r, i) => val(r) > val(rows[a]) ? i : a, 0);
+  rows.forEach((r, i) => {
+    const v = val(r), x = L + band * i + (band - bw) / 2, yt = y(v), h = Math.max(0, H - B - yt), rad = Math.min(4, h);
+    const d = h ? `M${x},${H - B} V${yt + rad} Q${x},${yt} ${x + rad},${yt} H${x + bw - rad} Q${x + bw},${yt} ${x + bw},${yt + rad} V${H - B} Z` : '';
+    svg += `<rect class="hit" data-i="${i}" x="${L + band * i}" y="${T}" width="${band}" height="${H - T - B}"/><path class="bar" d="${d}"/>`;
+    if (i === iMax && v > 0) svg += `<text class="axis" x="${x + bw / 2}" y="${yt - 5}" text-anchor="middle" style="fill:var(--ink);font-size:11px">${fmtTick(v)}</text>`;
+  });
+  el.innerHTML = svg + '</svg><div class="tip" hidden></div>';
+  const tip = el.querySelector('.tip');
+  el.querySelectorAll('.hit').forEach(h => {
+    h.addEventListener('mouseenter', () => { const r = rows[+h.dataset.i]; h.nextElementSibling.classList.add('hl');
+      tip.innerHTML = `<b>${dm(r.dia)}</b> · ${fmtTip(r)}`; tip.style.left = (+h.getAttribute('x') + band / 2) / W * 100 + '%';
+      tip.style.top = y(val(r)) / H * 100 + '%'; tip.hidden = false; });
+    h.addEventListener('mouseleave', () => { h.nextElementSibling.classList.remove('hl'); tip.hidden = true; });
+  });
+}
+function draw() {
+  columns(document.getElementById('chReq'), DIAS, r => r.n, compact, r => `${r.n} requisições (${r.genie} Genie)`);
+  columns(document.getElementById('chCusto'), DIAS, r => Number(r.custo) * FX, v => v.toLocaleString('pt-BR', {maximumFractionDigits: v < 1 ? 3 : 2}), r => brl(Number(r.custo) * FX));
+}
+draw(); window.addEventListener('resize', draw);
+</script>
+{% endblock %}

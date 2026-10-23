@@ -1,0 +1,24 @@
+command: ["gunicorn", "app:app", "-k", "gthread", "-w", "1", "--threads", "32", "-b", "0.0.0.0:8000", "--timeout", "300"]
+env:
+  - name: DATABRICKS_WAREHOUSE_ID
+    valueFrom: sql-warehouse
+  - name: SERVING_ENDPOINT
+    valueFrom: serving-endpoint
+  - name: GENIE_BOLETOS
+    valueFrom: genie-boletos
+  - name: GENIE_CARTOES
+    valueFrom: genie-cartoes
+  - name: GENIE_DUPLICATAS
+    valueFrom: genie-duplicatas
+  - name: GENIE_CREDITO
+    valueFrom: genie-credito
+  - name: GENIE_PIX
+    valueFrom: genie-pix
+  - name: GENIE_RISCO
+    valueFrom: genie-risco
+  - name: LAKEBASE_ENDPOINT
+    value: "projects/nuclea-monitor/branches/production/endpoints/primary"
+  - name: SCORE_ENDPOINT
+    valueFrom: score-endpoint
+  - name: NUCLEA_CATALOG
+    value: "workshop_nuclea_genie_catalog"

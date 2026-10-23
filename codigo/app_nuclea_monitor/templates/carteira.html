@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Monitoramento da carteira de crédito</h1>
+<p class="sub">Um orquestrador coordena agentes especialistas — Carteira, Exposição, Alerta Precoce, Investigador (Genie){% if score_ativo %} e Score ML{% endif %} —
+  sobre a carteira com garantia em recebíveis. A carteira é sempre a da instituição selecionada; os demais participantes aparecem só como média de mercado.</p>
+
+<div class="card">
+  <div class="row" style="margin-bottom:12px">
+    <label class="hint" for="ispb">Instituição (em produção vem do login)</label>
+    <select id="ispb" style="min-width:420px">
+      {% for i in instituicoes %}
+      <option value="{{ i.ispb }}" {{ 'selected' if i.ispb == ispb }}>{{ i.nome_participante }} · ISPB {{ i.ispb }} · {{ i.tipo_instituicao }} · R$ {{ (i.saldo_devedor | float / 1e6) | round(1) | num }} mi</option>
+      {% endfor %}
+    </select>
+  </div>
+  <form class="ask" id="askForm">
+    <input type="text" id="q" placeholder="Ex.: Como está a minha carteira de varejo, pequeno porte, no Sudeste?" autocomplete="off">
+    <button type="submit" id="send">Perguntar</button>
+    <button type="button" class="ghost" id="reset">Nova conversa</button>
+  </form>
+  <div class="etapas" style="margin-top:12px">
+    <div class="etapa">
+      {% for p in perguntas %}<button type="button" class="chip" data-q="{{ p }}">{{ p }}</button>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div id="thread"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let historico = [];
+const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function table(cols, rows) {
+  if (!cols || !cols.length) return '<div class="muted">sem linhas</div>';
+  return `<div class="tbl"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
+    rows.slice(0, 50).map(r => `<tr>${r.map(v => `<td>${esc(fmtNum(v))}</td>`).join('')}</tr>`).join('') + `</tbody></table></div>`;
+}
+function passo(p) {
+  const r = p.resultado || {};
+  let corpo = r.erro ? `<div class="err">${esc(r.erro)}</div>` : '';
+  if (r.colunas) corpo += table(r.colunas, r.linhas);
+  else if (!r.erro) for (const [b, x] of Object.entries(r)) if (x && typeof x === 'object')
+    corpo += `<div class="hint" style="margin-top:6px"><b>${esc(b)}</b></div>` + (x.erro ? `<div class="err">${esc(x.erro)}</div>` : '') +
+             (x.texto ? `<div class="txt">${esc(x.texto)}</div>` : '') + (x.colunas && x.colunas.length ? table(x.colunas, x.linhas) : '');
+  const args = Object.entries(p.args || {}).map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : v}`).join(' · ');
+  return `<details class="item"><summary>${p.icone} <b>${esc(p.agente)}</b> <span class="muted">· ${esc(p.ferramenta)}(${esc(args)}) · ${r.ms ?? '?'} ms</span></summary>${corpo}</details>`;
+}
+document.getElementById('askForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pergunta = document.getElementById('q').value.trim(); if (!pergunta) return;
+  const ispb = document.getElementById('ispb').value, btn = document.getElementById('send'); btn.disabled = true;
+  const c = document.createElement('div'); c.className = 'card'; c.style.marginTop = '16px';
+  c.innerHTML = `<div class="q muted">❯ ${esc(pergunta)}</div><div><span class="spin"></span> <span class="muted">Orquestrador acionando os agentes especialistas…</span></div>`;
+  document.getElementById('thread').prepend(c);
+  try {
+    const resp = await fetch('/api/carteira', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ispb, pergunta, historico})});
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
+    const r = await resp.json();
+    historico.push({role: 'user', content: pergunta}, {role: 'assistant', content: r.resposta});
+    c.lastElementChild.innerHTML = `<div class="parecer">${r.resposta_html}</div>
+      <details class="salas-perg" style="margin-top:12px"><summary class="hint">Rastro dos agentes: ${r.passos.length} chamadas · ${(r.duracao_ms/1000).toFixed(1)} s · ${r.tokens.toLocaleString('pt-BR')} tokens</summary>
+      ${r.passos.map(passo).join('')}</details>`;
+  } catch (err) { c.lastElementChild.innerHTML = `<div class="err">${esc(err)}</div>`; }
+  btn.disabled = false;
+});
+document.querySelectorAll('.chip').forEach(x => x.onclick = () => { document.getElementById('q').value = x.dataset.q; document.getElementById('askForm').requestSubmit(); });
+document.getElementById('reset').onclick = () => { historico = []; document.getElementById('thread').innerHTML = ''; };
+document.getElementById('ispb').onchange = () => { historico = []; document.getElementById('thread').innerHTML = ''; };
+</script>
+{% endblock %}

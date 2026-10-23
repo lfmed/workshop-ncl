@@ -1,0 +1,33 @@
+resources:
+  jobs:
+    orquestracao:
+      name: nuclea_lab_ingestao_orquestracao
+      description: "Gera lotes no volume landing -> roda o pipeline (Auto Loader + expectations) -> atualiza views de DQ"
+      max_concurrent_runs: 1
+      parameters:
+        - name: lotes
+          default: "1,2,3,4,5"
+        - name: forcar
+          default: "false"
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+      tasks:
+        - task_key: gerar_lotes
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/gerador/gerar_lotes.py
+            parameters: ["--catalog", "${var.catalog}", "--schema", "${var.schema}",
+                         "--lotes", "{{job.parameters.lotes}}", "--forcar", "{{job.parameters.forcar}}"]
+        - task_key: pipeline_ingestao
+          depends_on: [{task_key: gerar_lotes}]
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.ingestao_dq.id}
+            full_refresh: false
+        - task_key: views_dq
+          depends_on: [{task_key: pipeline_ingestao}]
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/dq/criar_views_dq.py
+            parameters: ["--catalog", "${var.catalog}", "--schema", "${var.schema}"]

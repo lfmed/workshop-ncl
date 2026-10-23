@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roteiro da demo inspiracional · Núclea × Databricks · Genie Code</title>
+<style>
+/* Paleta Núclea (skill nuclea-identidade-visual). Destaques neon só sobre preto; sobre branco, tons escuros derivados. */
+:root{
+  --preto:#000;--branco:#fff;--verde:#67FFCC;--lilas:#CC99FE;--lima:#DBED1F;--noite:#0E2233;--grafite:#464646;
+  --verde-e:#00795A;--lilas-e:#6B2FC0;--lima-e:#5E6600;--linha:#E4E4E4;--fundo:#F5F5F5;--muted:#6B6B6B;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Calibri,Carlito,"Segoe UI",-apple-system,Roboto,sans-serif;color:var(--grafite);background:var(--fundo);font-size:16px;line-height:1.55}
+a{color:var(--lilas-e)}
+code{background:#EFEFEF;padding:1px 6px;border-radius:4px;font-size:.92em;color:var(--noite)}
+h1,h2,h3{color:var(--preto);line-height:1.2}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* topo */
+.topo{background:var(--preto);color:#fff;position:sticky;top:0;z-index:10}
+.topo .wrap{display:flex;align-items:center;gap:22px;height:58px}
+.logo{font-weight:300;font-size:22px;letter-spacing:2px;color:#fff}
+.logo b{font-weight:300;color:var(--lima)}
+.topo nav{display:flex;gap:16px;flex-wrap:wrap}
+.topo nav a{color:#CFCFCF;text-decoration:none;font-size:14px;padding:18px 0;border-bottom:3px solid transparent}
+.topo nav a:hover{color:var(--verde);border-color:var(--lima)}
+.ini{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--lilas)}
+.ini input{width:70px;padding:6px 8px;border-radius:6px;border:1px solid #555;background:#111;color:var(--verde);font:inherit;text-transform:lowercase}
+
+/* hero */
+.hero{background:var(--preto);color:#fff;display:grid;grid-template-columns:1.25fr 1fr;min-height:420px}
+.hero .txt{padding:56px 48px 56px max(28px,calc((100vw - 1180px)/2 + 28px))}
+.hero h1{color:var(--lilas);font-size:44px;margin:0 0 6px;font-weight:700}
+.pincel{display:block;width:260px;height:10px;background:var(--lima);border-radius:8px 2px 10px 3px;transform:rotate(-1.2deg);margin:14px 0 22px}
+.hero p{color:#E6E6E6;font-size:19px;max-width:620px}
+.hero .lado{background:var(--verde);color:var(--preto);padding:48px;display:flex;flex-direction:column;justify-content:center;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%)}
+.hero .lado .pergunta{font-size:24px;font-weight:700;line-height:1.3;padding-left:12%}
+.hero .lado small{display:block;margin-top:14px;font-size:14px;padding-left:12%}
+.chev{color:var(--lima);font-size:40px;font-weight:700}
+
+/* seções */
+section{padding:54px 0 10px}
+.sec-t{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sec-t h2{font-size:30px;margin:0}
+.num{font-size:15px;font-weight:700;color:var(--preto);background:var(--lima);padding:3px 10px;border-radius:99px}
+.sublinha{height:6px;width:150px;background:var(--lima);border-radius:6px 1px 7px 2px;margin:4px 0 18px}
+.lead{font-size:18px;max-width:900px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 18px}
+.tag{font-size:13px;border:1px solid var(--preto);color:var(--preto);border-radius:99px;padding:2px 10px;background:#fff}
+.tag.sup{background:var(--preto);color:var(--verde);border-color:var(--preto)}
+
+.card{background:#fff;border:1px solid var(--linha);border-radius:12px;padding:20px 22px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2>*,.grid3>*{min-width:0}
+.prompt{overflow-wrap:anywhere}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.hero .lado{clip-path:none}.grid2,.grid3{grid-template-columns:1fr}}
+
+/* passo + prompt */
+.passo{background:#fff;border:1px solid var(--linha);border-left:6px solid var(--preto);border-radius:10px;padding:16px 20px;margin:14px 0}
+.passo h3{margin:0 0 4px;font-size:19px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.onde{font-size:13px;font-weight:700;background:var(--noite);color:var(--verde);padding:2px 9px;border-radius:6px}
+.prompt{position:relative;background:var(--preto);color:#F2F2F2;border-radius:10px;padding:16px 18px 16px 18px;margin:10px 0 6px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.55;white-space:pre-wrap}
+.prompt::before{content:"GENIE CODE ›";display:block;color:var(--lilas);font-weight:700;font-size:11px;letter-spacing:1px;margin-bottom:6px}
+.prompt.cfg::before{content:"COLE NA CONFIGURAÇÃO ›";color:var(--lima)}
+.prompt .sk{color:var(--verde);font-weight:700}
+.prompt .ph{color:var(--lima)}
+.copiar{position:absolute;top:10px;right:10px;background:var(--verde);color:var(--preto);border:0;border-radius:6px;padding:5px 11px;font:700 12px Calibri,Carlito,sans-serif;cursor:pointer}
+.copiar:hover{background:#4DF0BB}
+.copiar.ok{background:var(--lima)}
+.fala{border-left:4px solid var(--lilas-e);background:#F7F2FF;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.fala b{color:var(--lilas-e)}
+.check{border-left:4px solid var(--verde-e);background:#EAFFF7;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.check b{color:var(--verde-e)}
+.risco{border-left:4px solid var(--lima-e);background:#F7FAD9;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.risco b{color:var(--lima-e)}
+ul.passos{margin:6px 0;padding-left:20px} ul.passos li{margin:3px 0}
+
+/* tabela */
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:#fff}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:var(--preto);color:#fff;font-weight:700}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+
+/* agenda */
+.agenda{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--preto)}
+.agenda div{padding:14px 14px;background:#fff;border-right:1px solid var(--linha)}
+.agenda div:nth-child(odd){background:#FAFAFA}
+.agenda b{display:block;color:var(--preto);font-size:16px}
+.agenda span{font-size:13px;color:var(--muted)}
+.agenda .min{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;background:var(--preto);color:var(--lima);padding:1px 8px;border-radius:99px}
+@media(max-width:900px){.agenda{grid-template-columns:1fr 1fr}}
+
+/* fechamento */
+.fecho{background:var(--preto);color:#fff;margin-top:60px;padding:56px 0}
+.fecho h2{color:var(--lilas);font-size:32px;margin:0}
+.fecho .msg{border:1px solid #333;border-radius:12px;padding:18px;background:#0A0A0A}
+.fecho .msg b{color:var(--verde);display:block;font-size:18px;margin-bottom:4px}
+.fecho .msg p{margin:0;color:#DDD}
+.rodape{color:#9A9A9A;font-size:13px;margin-top:30px}
+.feito{float:right;font-size:13px;color:var(--muted);font-weight:400}
+.feito input{accent-color:var(--verde-e);transform:scale(1.2);vertical-align:-2px}
+@media print{.topo,.copiar{display:none}.prompt{white-space:pre-wrap;break-inside:avoid}.hero{min-height:auto}}
+</style>
+</head>
+<body>
+
+<div class="topo"><div class="wrap">
+  <div class="logo">Nuclea <b>×</b> databricks</div>
+  <nav>
+    <a href="#prep">Preparação</a><a href="#ato1">Ato 1</a><a href="#ato2">Ato 2</a><a href="#ato3">Ato 3</a><a href="#ato4">Ato 4</a><a href="#ato5">Bônus</a><a href="#ativos">Ativos</a>
+  </nav>
+  <label class="ini">Suas iniciais <input id="ini" value="lm" maxlength="6" aria-label="Suas iniciais"></label>
+</div></div>
+
+<header class="hero">
+  <div class="txt">
+    <div class="chev">›</div>
+    <h1>Do arquivo ao agente,<br>em uma conversa</h1>
+    <span class="pincel"></span>
+    <p>Roteiro da demo inspiracional para o time Núclea: ingestão massiva, qualidade de dados, score em tempo real e agentes especialistas de crédito, construídos <b style="color:var(--verde)">apenas com o Genie Code</b> sobre as bases sintéticas do workshop.</p>
+    <p style="font-size:15px;color:#BDBDBD">Workspace <code style="background:#1A1A1A;color:var(--verde)">fe-sandbox-workshop-nuclea-genie</code> · catálogo <code style="background:#1A1A1A;color:var(--verde)">workshop_nuclea_genie_catalog</code> · cerca de 60 min</p>
+  </div>
+  <div class="lado">
+    <div class="pergunta">“Como está a minha carteira de crédito de empresas do Varejo, pequeno porte, com presença no Sudeste?”</div>
+    <small><b>A pergunta-alvo.</b> No fim da demo, quem responde é um time de agentes especialistas, com números validados e governança do Unity Catalog.</small>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section>
+  <div class="sec-t"><h2>A história em 5 atos</h2></div>
+  <div class="sublinha"></div>
+  <p class="lead">A pergunta que guia tudo: <b>quanto podemos depender menos da cabeça de um cientista?</b> Cada ato mostra o Genie Code transformando conhecimento empacotado em skills num ativo de produção governado.</p>
+  <div class="agenda">
+    <div><b>0 · Preparação</b><span>Skills e instruções no Genie Code</span><br><span class="min">antes</span></div>
+    <div><b>1 · Os dados chegam</b><span>Auto Loader + pipeline serverless</span><br><span class="min">12 min</span></div>
+    <div><b>2 · Dá para confiar?</b><span>Expectations, quarentena, anomalias</span><br><span class="min">10 min</span></div>
+    <div><b>3 · Inteligência em tempo real</b><span>Score PJ servido em ms</span><br><span class="min">12 min</span></div>
+    <div><b>4 · O cliente pergunta</b><span>Agentes especialistas de crédito</span><br><span class="min">18 min</span></div>
+    <div><b>5 · Bônus</b><span>Dashboard na marca Núclea</span><br><span class="min">5 min</span></div>
+  </div>
+  <div class="risco"><b>Dica de palco:</b> treino de modelo, criação de endpoint e primeira execução de pipeline levam minutos. Rode os Atos 1 a 3 <b>antes</b> da sessão no seu schema e, ao vivo, mostre os prompts e os resultados. Se algo travar, cada ato tem um <b>plano B</b>: a implementação de referência já está pronta no workspace (seção <a href="#ativos">Ativos</a>).</div>
+  <p style="font-size:14px;color:var(--muted)">Todos os prompts usam o schema <code>workshop_nuclea_genie_catalog.<span class="ph-s">lab_lm</span></code>. Troque as iniciais no topo da página e os prompts se atualizam. Nunca escreva nos schemas de origem nem nos <code>lab_*</code> de referência.</p>
+</section>
+
+<!-- ============================================================ PREPARAÇÃO -->
+<section id="prep">
+  <div class="sec-t"><span class="num">0</span><h2>Preparação</h2></div><div class="sublinha"></div>
+
+  <div class="passo">
+    <h3>0.1 Confirme as skills <span class="onde">Workspace → Users → você → .assistant/skills</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>As 6 skills já estão em <code>/Users/leandro.medeiros@databricks.com/.assistant/skills/</code>:</p>
+    <table>
+      <tr><th>Skill</th><th>Usada em</th><th>O que ela ensina ao Genie Code</th></tr>
+      <tr><td><code>@nuclea-contexto-dados</code></td><td>Todos</td><td>Mapa das 18 tabelas, chaves, regras (data de referência 30/09/2026, ISPB e não nome) e armadilhas conhecidas</td></tr>
+      <tr><td><code>@nuclea-ingestao-massiva</code></td><td>Ato 1</td><td>Auto Loader, ingestão orientada a metadados, dedup com chave fixa, liquid clustering</td></tr>
+      <tr><td><code>@nuclea-data-quality</code></td><td>Ato 2</td><td>Regras fail/drop/warn, quarentena, métricas do event log, monitor de anomalias</td></tr>
+      <tr><td><code>@nuclea-model-serving</code></td><td>Ato 3</td><td>Features sem vazamento, LightGBM, alias champion, endpoint, <code>score_cnpj</code></td></tr>
+      <tr><td><code>@nuclea-monitoramento-credito</code></td><td>Ato 4</td><td>Carteira enriquecida, UC functions como ferramentas, validação, governança por ISPB</td></tr>
+      <tr><td><code>@nuclea-identidade-visual</code></td><td>Ato 5</td><td>Cores oficiais Núclea, contraste e paleta para gráficos</td></tr>
+    </table>
+    <p style="margin-top:10px">Se outra pessoa for apresentar, peça ao Genie Code num notebook:</p>
+    <div class="prompt">Copie a pasta de workspace /Users/leandro.medeiros@databricks.com/.assistant/skills (com subpastas e arquivos) para /Users/&lt;meu e-mail&gt;/.assistant/skills usando o Databricks SDK (workspace export/import), sem converter .py em notebook. Liste o resultado.</div>
+    <div class="check"><b>Checkpoint:</b> abra o painel do Genie Code, inicie uma <b>nova conversa</b> e digite <code>@nuclea</code>. As 6 skills devem aparecer. Se não aparecerem, faça um hard refresh (Cmd+Shift+R).</div>
+  </div>
+
+  <div class="passo">
+    <h3>0.2 Instruções pessoais do Genie Code <span class="onde">Workspace → Users → você → Create → File</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Crie o arquivo <code>.assistant_instructions.md</code> na raiz da sua pasta de usuário com o conteúdo abaixo. Ele vale para todas as conversas.</p>
+    <div class="prompt cfg"># Workshop Núclea
+- Catálogo workshop_nuclea_genie_catalog; dados sintéticos de 01/04 a 30/09/2026 (data de referência 2026-09-30).
+- Nunca altere os schemas boletos, cadastro, cartoes, credito, duplicatas, pix, risco, nem lab_credito, lab_ml, lab_ingestao.
+- Meus artefatos vão no schema <span class="ph-s">lab_lm</span>; recursos com sufixo -<span class="ph-i">lm</span>.
+- Prefira serverless (jobs, pipelines e o SQL warehouse "Serverless Starter Warehouse").
+- Identifique instituições por ISPB, nunca pelo nome.
+- Responda em português e sempre valide números com uma consulta SQL antes de concluir.
+- Visual: siga a skill nuclea-identidade-visual. Não use Streamlit.</div>
+  </div>
+
+  <div class="passo">
+    <h3>0.3 Aquecimento (5 min antes) <label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos">
+      <li>Abra as abas: notebook vazio, Lakeflow Pipelines Editor, SQL editor, a sala Genie de crédito e o app <a href="https://nuclea-monitor-7474655310823050.aws.databricksapps.com/carteira" target="_blank">nuclea-monitor → Carteira</a>.</li>
+      <li>“Acorde” o endpoint de score, que desliga quando fica ocioso: no SQL editor, rode <code>SELECT * FROM workshop_nuclea_genie_catalog.lab_ml.score_cnpj('05657016000195')</code>.</li>
+      <li>Ligue o SQL warehouse <b>Serverless Starter Warehouse</b>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ ATO 1 -->
+<section id="ato1">
+  <div class="sec-t"><span class="num">Ato 1</span><h2>Os dados chegam</h2></div><div class="sublinha"></div>
+  <p class="lead">Milhões de registros chegando em lotes, em formatos diferentes, com erros e com uma coluna nova no meio do caminho. Sem dimensionar cluster e sem reprocessar nada.</p>
+  <div class="meta"><span class="tag sup">Notebook</span><span class="tag sup">Lakeflow Pipelines Editor</span><span class="tag">Auto Loader</span><span class="tag">Serverless</span><span class="tag">Liquid clustering</span></div>
+
+  <div class="passo">
+    <h3>1.1 Simular a chegada dos arquivos <span class="onde">Notebook novo · serverless</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-contexto-dados @nuclea-ingestao-massiva</span> Crie o schema workshop_nuclea_genie_catalog.<span class="ph-s">lab_lm</span> e o volume landing. Depois escreva e execute aqui um gerador que exporte, em lotes mensais (lote_001 = abril ... lote_005 = agosto), para /Volumes/workshop_nuclea_genie_catalog/<span class="ph-s">lab_lm</span>/landing/&lt;entidade&gt;/lote_NNN/:
+- boletos.boletos_registro e boletos.boletos_baixas em CSV
+- cartoes.unidades_recebiveis em JSON
+- cadastro.empresas_pj em Parquet (só no lote 1)
+Injete em cada lote os problemas de qualidade descritos na skill (chave nula, valor negativo, vencimento antes do registro, valor em texto, data inválida, CNPJ com máscara, duplicadas) e grave o gabarito na tabela manifesto_injecoes. No fim, mostre arquivos e linhas por entidade e lote.</div>
+    <div class="fala"><b>Fala:</b> “Eu não escrevi o gerador. Descrevi o problema; a skill trouxe o conhecimento das nossas bases e o Genie Code planejou, escreveu, executou e corrigiu sozinho.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>1.2 Construir o pipeline <span class="onde">New → ETL pipeline · Python · serverless · schema <span class="ph-s">lab_lm</span></span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-ingestao-massiva</span> Construa este pipeline em Python, orientado a metadados:
+1. entidades.py com as 4 entidades (formato, opções, schemaHints com CNPJ/ISPB/IDs como STRING, cluster_by e chaves_dedup FIXAS);
+2. bronze_&lt;entidade&gt; com Auto Loader lendo /Volumes/workshop_nuclea_genie_catalog/<span class="ph-s">lab_lm</span>/landing/&lt;entidade&gt;/, schemaEvolutionMode addNewColumns, _rescued_data e metadados do arquivo (_arquivo, _lote, _ingerido_em);
+3. silver_&lt;entidade&gt; com dedup em streaming pela chave fixa;
+4. gold_posicao_diaria_boletos e gold_posicao_diaria_ur (materialized views) por dia, UF, região, setor e porte, juntando com o cadastro.
+Use liquid clustering por data + CNPJ e rode o pipeline.</div>
+    <div class="fala"><b>Mostre:</b> o grafo do pipeline se desenhando, as contagens por tabela e o fato de ninguém ter escolhido tamanho de cluster.</div>
+  </div>
+
+  <div class="passo">
+    <h3>1.3 Chega um lote novo, com surpresa <span class="onde">Notebook</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt">Gere o lote 6 (setembro) com uma coluna nova id_registradora em unidades_recebiveis e rode o pipeline de novo. Depois, consultando o event log do pipeline, me mostre quantas linhas cada tabela bronze escreveu em cada update.</div>
+    <div class="check"><b>Checkpoint:</b> o update do lote 6 escreve no bronze <b>só</b> o lote novo; na referência foram 316.882 linhas de boletos e baixas e 90.145 de URs. A coluna <code>id_registradora</code> existe e só está preenchida no lote 6.</div>
+    <div class="risco"><b>Se a silver de URs falhar com <code>STATE_STORE_KEY_SCHEMA_NOT_COMPATIBLE</code>:</b> ótimo momento didático. A dedup usou <code>df.columns</code>. Peça: <i>“corrija a dedup para usar a chave fixa da entidade e retome sem full refresh”</i>. Foi exatamente o que aconteceu na referência.</div>
+  </div>
+  <p><b>Plano B:</b> pipeline <a href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/pipelines/96a97249-6bdc-42ce-a7aa-3c98c2543274" target="_blank">nuclea_lab_ingestao_dq</a> e job <a href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/jobs/789766381784946" target="_blank">nuclea_lab_ingestao_orquestracao</a>.</p>
+</section>
+
+<!-- ============================================================ ATO 2 -->
+<section id="ato2">
+  <div class="sec-t"><span class="num">Ato 2</span><h2>Dá para confiar nesses dados?</h2></div><div class="sublinha"></div>
+  <p class="lead">Qualidade em camadas: nada some em silêncio, todo registro rejeitado tem motivo, e o próprio dado avisa quando algo foge do padrão.</p>
+  <div class="meta"><span class="tag sup">Lakeflow Pipelines Editor</span><span class="tag sup">SQL editor</span><span class="tag sup">Catalog Explorer</span><span class="tag">Expectations</span><span class="tag">Anomaly detection</span></div>
+
+  <div class="passo">
+    <h3>2.1 Regras e quarentena <span class="onde">Pipelines Editor · mesmo pipeline</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-data-quality</span> Crie dq_regras.py como catálogo único de regras por entidade, em três níveis: fail (invariantes do processo), drop (registro inválido) e warn (alerta de negócio), todas embrulhadas em coalesce(expr, false). Aplique como expectations nas silvers, crie quarentena_&lt;entidade&gt; com a coluna _motivos (array com as regras violadas) e publique o event log no Unity Catalog como <span class="ph-s">lab_lm</span>.event_log_ingestao. Rode o pipeline.</div>
+  </div>
+
+  <div class="passo">
+    <h3>2.2 Provar que a conta fecha <span class="onde">SQL editor</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-data-quality</span> No schema <span class="ph-s">lab_lm</span>, crie as views vw_dq_taxa_aprovacao (por tabela, regra e ação, a partir do event_log_ingestao), vw_dq_quarentena_motivos e vw_dq_reconciliacao (bronze = silver + quarentena + duplicadas, comparado com manifesto_injecoes, por entidade e lote). Mostre a reconciliação e as regras warn com mais reprovações.</div>
+    <div class="check"><b>Checkpoint:</b> todas as combinações entidade × lote com <code>confere = true</code>; na referência foram 19 de 19. Regras fail com 100% de aprovação; regras drop entre 99,95% e 99,99%.</div>
+    <div class="fala"><b>Momento “uau”:</b> a regra warn <code>sem_divergencia_beneficiario</code> reprova cerca de <b>3.965 baixas</b>. Não é erro injetado: são <b>boletos pagos a terceiros, ou seja, adulterados</b>. “A qualidade de dados acabou de virar um sinal de fraude.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>2.3 Monitor de anomalias <span class="onde">Catalog Explorer → schema <span class="ph-s">lab_lm</span> → Quality</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Ative <b>anomaly detection</b> no schema com um clique. Ele aprende o ritmo de atualização (freshness) e o volume de cada tabela e avisa quando algo foge do padrão. Ele precisa de histórico; na demo, mostre o do schema de referência <code>lab_ingestao</code>.</p>
+  </div>
+
+  <div class="passo">
+    <h3>2.4 E as bases que já existem? <span class="onde">SQL editor</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-data-quality @nuclea-contexto-dados</span> Faça um perfil de qualidade de cadastro.empresas_pj, cadastro.participantes e risco.consultas_cnpj: unicidade de chave, órfãos contra o cadastro, domínio de datas e valores, padrão do CNPJ e coerência entre faixa_risco e score_pj. Devolva uma tabela com problema, quantidade, exemplo e gravidade.</div>
+    <div class="check"><b>Deve encontrar:</b> uma empresa aberta em <b>1888</b>; uma <code>faixa_risco</code> incoerente com o score (faixa D com score de 106 a 799); <b>nomes de participante repetidos</b> em ISPBs diferentes; e nenhum órfão em gravames e consultas.</div>
+  </div>
+</section>
+
+<!-- ============================================================ ATO 3 -->
+<section id="ato3">
+  <div class="sec-t"><span class="num">Ato 3</span><h2>Inteligência em tempo real</h2></div><div class="sublinha"></div>
+  <p class="lead">Do dado ao score de inadimplência PJ, servido em centenas de milissegundos e disponível para SQL, Genie, apps e agentes com o mesmo controle de acesso.</p>
+  <div class="meta"><span class="tag sup">Notebook · Data Science agent</span><span class="tag sup">Serving</span><span class="tag sup">SQL editor</span><span class="tag">MLflow 3</span><span class="tag">Unity Catalog</span><span class="tag">AI Gateway</span></div>
+
+  <div class="passo">
+    <h3>3.1 Features e modelo <span class="onde">Notebook novo · serverless · Genie Code (agent)</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-model-serving @nuclea-contexto-dados</span> Crie <span class="ph-s">lab_lm</span>.features_pj (uma linha por CNPJ, PK cnpj, CDF ligado) com features de cadastro, recebíveis, atributos de originação dos gravames, boletos, duplicatas e risco, conforme a skill, SEM usar status_contrato nem saldo_devedor. Alvo rotulo_inadimplente, treinando só com tomadores. Treine um LightGBM com holdout estratificado de 20%, reporte AUC, KS e lift no top 10% e registre no Unity Catalog como <span class="ph-s">lab_lm</span>.score_inadimplencia_pj, com signature, input_example e alias champion.</div>
+    <div class="prompt">Quais são as 10 features mais importantes? Existe algum risco de vazamento nessa modelagem? Explique como para um gerente de risco.</div>
+    <div class="check"><b>Checkpoint:</b> cerca de 21,9 mil tomadores e 6,9% de positivos; AUC de cerca de 0,65 e KS de cerca de 0,23 (sinal moderado: os dados são sintéticos). Experimento e versão aparecem no MLflow e no Unity Catalog.</div>
+    <div class="fala"><b>Fala:</b> “A regra anti-vazamento estava na skill. O conhecimento do cientista está escrito uma vez e é reaplicado por qualquer pessoa.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>3.2 Servir em tempo real <span class="onde">Notebook (ou Serving → Create endpoint)</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt">Crie o endpoint de Model Serving serverless nuclea-score-<span class="ph-i">lm</span> servindo <span class="ph-s">lab_lm</span>.score_inadimplencia_pj@champion (Small, scale-to-zero), com inference table no schema <span class="ph-s">lab_lm</span> e usage tracking no AI Gateway. Aguarde ficar READY, chame com 20 CNPJs (10 inadimplentes e 10 adimplentes) e me dê a latência p50/p95 depois do warmup e a probabilidade média de cada grupo.</div>
+    <div class="check"><b>Checkpoint:</b> p50 de cerca de 250 ms depois do warmup; probabilidade média dos inadimplentes maior que a dos adimplentes (referência: 0,49 contra 0,14).</div>
+    <div class="risco"><b>Atenção:</b> a criação do endpoint leva de 10 a 15 min. Faça antes. Ao vivo, use o endpoint de referência <code>nuclea-score-inadimplencia</code>.</div>
+  </div>
+
+  <div class="passo">
+    <h3>3.3 Score “só com o CNPJ” <span class="onde">SQL editor</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-model-serving</span> Crie a função SQL <span class="ph-s">lab_lm</span>.score_cnpj(cnpj STRING), que aceita CNPJ com ou sem máscara, busca a linha em <span class="ph-s">lab_lm</span>.features_pj e chama o endpoint nuclea-score-<span class="ph-i">lm</span> via ai_query, devolvendo cnpj, razao_social, porte, setor, uf, prob_inadimplencia, score e faixa_risco. Teste com '05.657.016/0001-95'.</div>
+    <div class="fala"><b>Fala:</b> “Agora o modelo é uma função governada. Quem tem EXECUTE usa no SQL, na sala Genie, no app ou como ferramenta de um agente, que é o próximo ato.”</div>
+  </div>
+</section>
+
+<!-- ============================================================ ATO 4 -->
+<section id="ato4">
+  <div class="sec-t"><span class="num">Ato 4</span><h2>O cliente pergunta, os agentes respondem</h2></div><div class="sublinha"></div>
+  <p class="lead">O clímax: a pergunta do cliente respondida por agentes especialistas (carteira, exposição, alerta precoce, investigador e score), com números conferidos e sem acesso à carteira de outra instituição.</p>
+  <div class="meta"><span class="tag sup">SQL editor</span><span class="tag sup">Genie space</span><span class="tag sup">Agents · Supervisor</span><span class="tag sup">Painel do Genie Code + MCP</span><span class="tag">UC functions como ferramentas</span></div>
+
+  <div class="passo">
+    <h3>4.1 Os especialistas viram funções <span class="onde">SQL editor</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-monitoramento-credito @nuclea-contexto-dados</span> No schema <span class="ph-s">lab_lm</span>, crie a tabela carteira_contratos (1 linha por contrato de gravame, com porte_grupo, região, score atual e variação 30d × 30-120d, alertas de fraude, boletos vencidos e % da agenda de recebíveis comprometida, com COMMENT nas colunas e CLUSTER BY (ispb_financiador, setor, regiao)). Depois crie as UC functions resumo_carteira, quebra_carteira, evolucao_carteira, maiores_exposicoes e sinais_alerta com a convenção de filtros da skill e COMMENT em cada função e parâmetro.</div>
+    <div class="prompt">Valide: compare lado a lado <span class="ph-s">lab_lm</span>.resumo_carteira('42691787','Varejo','Pequeno','Sudeste') com um SQL direto sobre carteira_contratos com os mesmos filtros.</div>
+    <div class="check"><b>Checkpoint (ISPB 42691787 · Varejo · Pequeno · Sudeste):</b>
+      <table style="margin-top:8px"><tr><th></th><th>Minha carteira</th><th>Mercado</th></tr>
+      <tr><td>Contratos ativos</td><td class="n">622</td><td class="n">6.258</td></tr>
+      <tr><td>Saldo devedor</td><td class="n">R$ 27,92 mi</td><td class="n">R$ 260,33 mi</td></tr>
+      <tr><td>% inadimplência</td><td class="n">4,02%</td><td class="n">4,64%</td></tr></table></div>
+    <div class="risco"><b>Armadilhas que a skill já evita:</b> <code>LIMIT</code> com parâmetro em UDF (usa <code>row_number</code>); contar a carteira em dobro na comparação com o mercado; identificar a instituição pelo nome (há 3 “da Cruz Pagamentos S.A.”).</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.2 Caminho sem código: sala Genie <span class="onde">Genie → New space</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos">
+      <li>Nome: <code>Monitoramento de Crédito - <span class="ph-i">lm</span></code>. Tabela: <code><span class="ph-s">lab_lm</span>.carteira_contratos</code>. Em <i>SQL functions</i>, adicione as 5 funções do passo 4.1.</li>
+      <li>Em <i>Instructions</i>, cole:</li>
+    </ul>
+    <div class="prompt cfg">Você atende uma instituição financeira participante da Núclea. Carteira = contratos com status_contrato diferente de 'Liquidado'.
+Pequeno porte = porte_grupo 'Pequeno' (MEI, ME, EPP). Regiões: Sudeste, Sul, Nordeste, Norte, Centro-Oeste.
+Sempre compare a carteira da instituição (ispb_financiador) com o mercado (todas as instituições) com os mesmos filtros.
+% inadimplência = soma de saldo_inadimplente / soma de saldo_devedor. Data de referência: 30/09/2026.
+Prefira as funções resumo_carteira, quebra_carteira, evolucao_carteira, maiores_exposicoes e sinais_alerta.
+Valores em R$ no padrão brasileiro.</div>
+    <div class="prompt">Para o ISPB 42691787: como está a minha carteira de crédito de empresas do segmento varejo, pequeno porte, com presença na região sudeste? Compare com o mercado.</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.3 Time de agentes: Supervisor <span class="onde">Agents → Supervisor Agent</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos">
+      <li>Nome <code>supervisor-credito-<span class="ph-i">lm</span></code>. Subagentes: a sala Genie do passo 4.2 e as salas existentes <b>Nuclea - Risco e Fraude</b> e <b>Nuclea - Boletos (PCR e SILOC)</b>. Ferramentas (UC functions): as 5 de <code><span class="ph-s">lab_lm</span></code> e <code><span class="ph-s">lab_lm</span>.score_cnpj</code>, ou a de referência <code>lab_ml.score_cnpj</code>.</li>
+      <li>Em <i>Instructions</i>, cole:</li>
+    </ul>
+    <div class="prompt cfg">Você é o orquestrador de monitoramento de crédito da Núclea. Coordene especialistas:
+- Carteira (resumo, quebra, safras), Exposição (maiores tomadores), Alerta Precoce (sinais_alerta): UC functions;
+- Investigador: salas Genie de Risco e Boletos, apenas para 1 a 3 CNPJs críticos;
+- Score ML: score_cnpj para os maiores tomadores e os que têm sinais de alerta.
+Nunca invente números; chame as ferramentas antes de responder e compare sempre com o mercado.
+Formato: Resumo executivo; Indicadores vs mercado; Tendência (safras); Concentração; Sinais de alerta; Recomendações.</div>
+    <div class="prompt">Sou a instituição ISPB 42691787. Como está a minha carteira de crédito de empresas do segmento varejo, pequeno porte, com presença na região sudeste? Depois investigue os 2 tomadores mais críticos em boletos e risco e me dê o score do modelo de cada um.</div>
+    <div class="fala"><b>Mostre o trace:</b> quais especialistas foram acionados, em paralelo, com quais filtros. “O cientista não precisou estar na sala.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.4 O próprio Genie Code como agente de crédito <span class="onde">Genie Code → Settings → MCP → UC Functions</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Adicione as UC functions de <code><span class="ph-s">lab_lm</span></code> como servidor MCP e, no painel do Genie Code, em qualquer tela, pergunte:</p>
+    <div class="prompt"><span class="sk">@nuclea-monitoramento-credito</span> Usando as ferramentas de <span class="ph-s">lab_lm</span>, quais tomadores da carteira do ISPB 42691787 (Varejo, pequeno porte, Sudeste) eu devo olhar primeiro e por quê? Monte uma tabela com saldo, sinais e ação recomendada.</div>
+    <div class="check"><b>Esperado no topo:</b> Novais Moreira S.A. (score caiu 173 pontos, faixa D, 2 alertas em aberto) e Gonçalves da Mota (inadimplente, com boleto adulterado confirmado).</div>
+  </div>
+
+  <div class="passo" style="border-left-color:var(--verde-e)">
+    <h3>4.5 Como isso chega ao cliente <span class="onde">App nuclea-monitor · aba Carteira de crédito</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Feche o ato no app de referência, em Flask + Lakebase, como Databricks App: <a href="https://nuclea-monitor-7474655310823050.aws.databricksapps.com/carteira" target="_blank">abrir a aba Carteira</a>.</p>
+    <ul class="passos">
+      <li>Escolha a instituição <b>ISPB 42691787</b> e clique na primeira pergunta sugerida. Abra o <b>Rastro dos agentes</b>.</li>
+      <li><b>Governança:</b> o ISPB vem do app (em produção, do login), nunca do LLM. Peça para investigar um CNPJ de outra carteira: o acesso é negado.</li>
+      <li>Toda conversa fica auditada no Lakebase (pergunta, resposta, ferramentas chamadas e tokens).</li>
+    </ul>
+    <div class="fala"><b>Fala:</b> “Esta é a interface de autoatendimento para vender indicadores a pequenos clientes, e a mesma base atende os grandes por API ou Delta Sharing.”</div>
+  </div>
+</section>
+
+<!-- ============================================================ ATO 5 -->
+<section id="ato5">
+  <div class="sec-t"><span class="num">Bônus</span><h2>Um dashboard na marca Núclea</h2></div><div class="sublinha"></div>
+  <div class="passo">
+    <h3>5.1 Dashboard com o agente de dashboards <span class="onde">Dashboards → Create → Genie Code</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt"><span class="sk">@nuclea-identidade-visual @nuclea-monitoramento-credito</span> Crie o dashboard “Carteira de Crédito Núclea - <span class="ph-i">lm</span>” sobre <span class="ph-s">lab_lm</span>.carteira_contratos com: filtro de instituição (ISPB), setor, porte_grupo e região; KPIs de saldo, % inadimplência da instituição e do mercado; safras mensais (linha da instituição × mercado); quebra por UF; e tabela de sinais de alerta. Use a paleta da skill (fundo claro: #00795A, #6B2FC0, #5E6600, #464646; destaque de 1 série em #00795A com o resto em cinza).</div>
+  </div>
+</section>
+
+<!-- ============================================================ ATIVOS -->
+<section id="ativos">
+  <div class="sec-t"><h2>Ativos prontos no workspace (referência e plano B)</h2></div><div class="sublinha"></div>
+  <table>
+    <tr><th>Ato</th><th>Ativo</th><th>Onde</th></tr>
+    <tr><td>0</td><td>6 skills do Genie Code</td><td><code>/Users/leandro.medeiros@databricks.com/.assistant/skills/</code></td></tr>
+    <tr><td>1</td><td>Volume com 6 lotes (CSV, JSON, Parquet)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/volumes/workshop_nuclea_genie_catalog/lab_ingestao/landing">lab_ingestao.landing</a></td></tr>
+    <tr><td>1</td><td>Pipeline Auto Loader → bronze/silver/gold (serverless)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/pipelines/96a97249-6bdc-42ce-a7aa-3c98c2543274">nuclea_lab_ingestao_dq</a></td></tr>
+    <tr><td>1</td><td>Job de orquestração (gerar lotes → pipeline → views de DQ)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/jobs/789766381784946">nuclea_lab_ingestao_orquestracao</a></td></tr>
+    <tr><td>2</td><td>Views de DQ e reconciliação</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_ingestao/vw_dq_reconciliacao">lab_ingestao.vw_dq_*</a></td></tr>
+    <tr><td>2</td><td>Monitor de anomalias</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_ingestao">schema lab_ingestao → Quality</a></td></tr>
+    <tr><td>3</td><td>Tabela de features</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_ml/features_pj">lab_ml.features_pj</a></td></tr>
+    <tr><td>3</td><td>Experimento MLflow</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/ml/experiments/4130931396303721">nuclea_tema5_score_pj</a></td></tr>
+    <tr><td>3</td><td>Modelo no Unity Catalog (@champion)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/models/workshop_nuclea_genie_catalog/lab_ml/score_inadimplencia_pj">lab_ml.score_inadimplencia_pj</a></td></tr>
+    <tr><td>3</td><td>Endpoint em tempo real</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/ml/endpoints/nuclea-score-inadimplencia">nuclea-score-inadimplencia</a></td></tr>
+    <tr><td>3</td><td>Função de score por CNPJ</td><td><code>lab_ml.score_cnpj(cnpj)</code></td></tr>
+    <tr><td>4</td><td>Carteira enriquecida + 5 UC functions</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_credito/carteira_contratos">lab_credito.carteira_contratos</a></td></tr>
+    <tr><td>4</td><td>Salas Genie por base</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e098a187790041796a4dc6ae4">Risco e Fraude</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e0056147289db45f022487b78">Boletos</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e027b14088e24e6b57f895e12">Cartões</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e063413fe998b02944c16a758">Crédito</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e049a1c0e8df1f9772fee2cc2">Duplicatas</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e07c71596b8e10615d55cc717">Pix</a></td></tr>
+    <tr><td>4</td><td>App com agentes especialistas</td><td><a target="_blank" href="https://nuclea-monitor-7474655310823050.aws.databricksapps.com/carteira">nuclea-monitor → Carteira de crédito</a></td></tr>
+  </table>
+  <p style="font-size:14px;color:var(--muted)">Os links são internos ao workspace e exigem login com permissão. Este roteiro não publica nada externamente.</p>
+</section>
+</main>
+
+<div class="fecho"><div class="wrap">
+  <div class="chev">›</div>
+  <h2>O que fica para o time Núclea</h2>
+  <span class="pincel" style="width:200px"></span>
+  <div class="grid2" style="margin-top:18px">
+    <div class="msg"><b>Conhecimento vira ativo</b><p>A cabeça do cientista virou skill: regras de negócio, anti-vazamento e armadilhas escritas uma vez e reaplicadas por qualquer pessoa, a cada conversa.</p></div>
+    <div class="msg"><b>Governança de ponta a ponta</b><p>Tabelas, funções, modelo e agentes vivem no Unity Catalog. A mesma permissão (SELECT, EXECUTE, CAN_QUERY) vale para pessoas, apps e agentes.</p></div>
+    <div class="msg"><b>Serverless do arquivo ao agente</b><p>Pipeline, treino, serving, SQL e app sem dimensionar cluster. Incremental por padrão, e só se paga pelo que roda.</p></div>
+    <div class="msg"><b>Do indicador ao produto</b><p>As mesmas funções alimentam a sala Genie, o dashboard, o app de autoatendimento e o Delta Sharing para grandes clientes.</p></div>
+  </div>
+  <p style="margin-top:26px;color:#DDD"><b style="color:var(--lima)">Pergunta para o time:</b> quais outras “cabeças” da Núclea (concessão, recuperação, liquidez) viram a próxima skill?</p>
+  <div class="rodape">Dados sintéticos do workshop · Workspace fe-sandbox-workshop-nuclea-genie · Cores conforme a skill nuclea-identidade-visual (verde-água, lilás e lima só sobre fundo escuro).</div>
+</div></div>
+
+<script>
+// Prompts: troca as iniciais e copia o texto
+const ini = document.getElementById('ini');
+function aplicar() {
+  const v = (ini.value || 'lm').toLowerCase().replace(/[^a-z0-9_]/g, '') || 'lm';
+  document.querySelectorAll('.ph-s').forEach(e => e.textContent = 'lab_' + v);
+  document.querySelectorAll('.ph-i').forEach(e => e.textContent = v);
+  localStorage.setItem('nuclea_ini', v);
+}
+ini.value = localStorage.getItem('nuclea_ini') || 'lm';
+ini.addEventListener('input', aplicar);
+aplicar();
+document.querySelectorAll('.prompt').forEach(p => {
+  const b = document.createElement('button'); b.className = 'copiar'; b.type = 'button'; b.textContent = 'Copiar';
+  b.onclick = async () => {
+    const t = p.cloneNode(true); t.querySelector('.copiar')?.remove();
+    await navigator.clipboard.writeText(t.textContent.trim());
+    b.textContent = 'Copiado ✓'; b.classList.add('ok'); setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500);
+  };
+  p.appendChild(b);
+});
+// Checklist "feito" persistido no navegador
+document.querySelectorAll('.feito input').forEach((c, i) => {
+  c.checked = localStorage.getItem('nuclea_feito_' + i) === '1';
+  c.onchange = () => localStorage.setItem('nuclea_feito_' + i, c.checked ? '1' : '0');
+});
+</script>
+</body>
+</html>

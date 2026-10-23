@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Agentes por CNPJ</h1>
+<p class="sub">Cada agente monitora um CNPJ em várias bases ao mesmo tempo: uma sala Genie por base responde a sua pergunta, e um analista LLM cruza os achados num parecer de risco. Os agentes rodam sozinhos na frequência escolhida.</p>
+
+<div class="two">
+  <div class="card">
+    <h2>Monitores ativos</h2>
+    {% if monitores %}
+    <div class="tbl" style="max-height:none">
+    <table>
+      <thead><tr><th>CNPJ</th><th>Bases</th><th>Frequência</th><th>Próxima</th><th>Último risco</th><th></th></tr></thead>
+      <tbody>
+      {% for m in monitores %}
+        <tr>
+          <td><a href="{{ url_for('painel', cnpj=m.cnpj) }}"><b>{{ m.cnpj | cnpj }}</b></a>{% if m.nome %}<br><span class="muted">{{ m.nome }}</span>{% endif %}</td>
+          <td>{% for s in m.salas %}<span title="{{ SALAS[s].titulo }}">{{ SALAS[s].icone }}</span>{% endfor %}</td>
+          <td>{{ FREQ.get(m.frequencia_horas, m.frequencia_horas ~ 'h') }}{% if not m.ativo %} <span class="pill">pausado</span>{% endif %}</td>
+          <td class="muted">{{ m.proxima_execucao.strftime('%d/%m %H:%M') if m.ativo else '—' }}</td>
+          <td>{% if m.nivel_risco %}<span class="pill {{ NIVEL_CLS.get(m.nivel_risco, '') }}">{{ m.nivel_risco }}</span>{% elif m.ult_status %}<span class="muted">{{ m.ult_status }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+          <td class="row" style="gap:4px">
+            <form method="post" action="{{ url_for('acao_agente', mid=m.id, acao='executar') }}"><button class="sm">Executar</button></form>
+            <form method="post" action="{{ url_for('acao_agente', mid=m.id, acao='alternar') }}"><button class="sm ghost">{{ 'Pausar' if m.ativo else 'Ativar' }}</button></form>
+            <form method="post" action="{{ url_for('acao_agente', mid=m.id, acao='excluir') }}" onsubmit="return confirm('Excluir este monitor?')"><button class="sm danger">✕</button></form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">Nenhum monitor ainda. Crie o primeiro ao lado.</p>{% endif %}
+
+    <h2 style="margin-top:22px">Execuções recentes</h2>
+    {% if recentes %}
+    <table>
+      <thead><tr><th>Quando</th><th>CNPJ</th><th>Origem</th><th>Status</th><th>Risco</th></tr></thead>
+      <tbody>{% for e in recentes %}
+        <tr><td class="muted">{{ e.inicio.strftime('%d/%m %H:%M') }}</td>
+            <td><a href="{{ url_for('painel', cnpj=e.cnpj, exec=e.id) }}">{{ e.cnpj | cnpj }}</a></td>
+            <td>{{ e.origem }}</td><td>{{ e.status }}</td>
+            <td>{% if e.nivel_risco %}<span class="pill {{ NIVEL_CLS.get(e.nivel_risco, '') }}">{{ e.nivel_risco }}</span>{% endif %}</td></tr>
+      {% endfor %}</tbody>
+    </table>
+    {% else %}<p class="muted">Sem execuções.</p>{% endif %}
+  </div>
+
+  <form class="card" method="post" action="{{ url_for('criar_agente') }}">
+    <h2>Novo agente de monitoramento</h2>
+    <label class="f">CNPJ</label>
+    <div class="autocomplete"><input type="text" name="cnpj" id="cnpj" required placeholder="Digite CNPJ ou razão social" value="{{ cnpj_inicial or '' }}" autocomplete="off"></div>
+    <div class="hint">Dica para o workshop: experimente 05633259000193, ou compare com um CNPJ grande como 10000019000191.</div>
+    <label class="f">Nome do monitor (opcional)</label>
+    <input type="text" name="nome" placeholder="Ex.: Cliente em análise de crédito">
+    <label class="f">Bases monitoradas e pergunta de cada agente</label>
+    <div class="salas-perg">
+      {% for k, s in SALAS.items() %}
+      <div class="item" data-sala="{{ k }}">
+        <label class="row" style="gap:8px"><input type="checkbox" name="salas" value="{{ k }}" checked> <b>{{ s.icone }} {{ s.titulo }}</b> <span class="muted">{{ s.subtitulo }}</span></label>
+        <textarea name="pergunta_{{ k }}" style="margin-top:6px">{{ s.pergunta }}</textarea>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="hint" style="margin-bottom:8px">Use <code>{cnpj}</code> na pergunta; ele é substituído pelo CNPJ monitorado.</div>
+    <label class="f">Frequência</label>
+    <select name="frequencia">{% for h, n in frequencias %}<option value="{{ h }}" {{ 'selected' if h == 24 }}>{{ n }}</option>{% endfor %}</select>
+    <label class="row" style="margin:14px 0"><input type="checkbox" name="executar_agora" value="1" checked> Executar a primeira análise agora</label>
+    <button type="submit">Criar agente</button>
+  </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+autocompleteCnpj(document.getElementById('cnpj'));
+document.querySelectorAll('.salas-perg .item').forEach(it => {
+  const cb = it.querySelector('input'); const upd = () => it.classList.toggle('off', !cb.checked); cb.onchange = upd; upd();
+});
+</script>
+{% endblock %}

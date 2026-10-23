@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Conversar com as bases Núclea</h1>
+<p class="sub">Escolha as salas Genie e faça sua pergunta: ela é enviada em paralelo para cada base selecionada. Perguntas seguintes continuam a conversa em cada sala.</p>
+
+<div class="rooms" id="rooms">
+  {% for k, s in SALAS.items() %}
+  <label class="room {{ 'on' if loop.index <= 2 }}" data-sala="{{ k }}">
+    <input type="checkbox" value="{{ k }}" {{ 'checked' if loop.index <= 2 }}>
+    <span class="ic">{{ s.icone }}</span>
+    <span><b>{{ s.titulo }}</b><small>{{ s.subtitulo }}</small></span>
+  </label>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <form class="ask" id="askForm">
+    <input type="text" id="q" placeholder="Ex.: Quais CNPJs têm contratos em mais bancos diferentes? · Resumo do CNPJ 05633259000193" autocomplete="off">
+    <button type="submit" id="send">Perguntar</button>
+    <button type="button" class="ghost" id="reset" title="Começa novas conversas em todas as salas">Nova conversa</button>
+  </form>
+  <div class="row" style="margin-top:10px" id="cnpjBar" hidden>
+    <span class="hint">CNPJ detectado: <b id="cnpjFound"></b></span>
+    <button type="button" class="sm ghost" id="analisar">Analisar com agentes em todas as bases</button>
+    <a class="btn sm ghost" id="agendar">Agendar monitoramento</a>
+  </div>
+</div>
+
+<details class="card roteiro" id="roteiro" open>
+  <summary><b>Roteiro do caso:</b> investigando um anel de CNPJs de fachada <span class="muted">· clique numa pergunta para enviá-la às salas certas</span></summary>
+  <div class="etapas">
+    {% for e in roteiro %}
+    <div class="etapa">
+      <div class="etapa-t">{{ e.etapa }}</div>
+      {% for p in e.perguntas %}
+      <button type="button" class="chip" data-salas="{{ p.salas | join(',') }}" data-q="{{ p.q }}">
+        <span class="chip-salas">{% for s in p.salas %}{{ SALAS[s].icone }}{% endfor %}</span> {{ p.q }}
+      </button>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</details>
+
+<div class="answers" id="answers"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const SALAS = {{ SALAS | tojson }};
+let sessao = crypto.randomUUID(), convs = {};
+const rooms = document.querySelectorAll('.room');
+rooms.forEach(r => r.addEventListener('click', e => { e.preventDefault(); const cb = r.querySelector('input'); cb.checked = !cb.checked; r.classList.toggle('on', cb.checked); }));
+const selected = () => [...rooms].filter(r => r.querySelector('input').checked).map(r => r.dataset.sala);
+const esc = s => (s ?? '').toString().replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function table(cols, rows) {
+  if (!cols || !cols.length) return '';
+  return `<div class="tbl"><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>` +
+    rows.slice(0, 100).map(r => `<tr>${r.map(v => `<td>${esc(fmtNum(v))}</td>`).join('')}</tr>`).join('') + `</tbody></table></div>` +
+    (rows.length > 100 ? `<div class="hint">mostrando 100 de ${rows.length} linhas</div>` : '');
+}
+function card(sala) {
+  let c = document.getElementById('ans-' + sala);
+  if (!c) {
+    c = document.createElement('div'); c.className = 'card answer'; c.id = 'ans-' + sala;
+    c.innerHTML = `<h3>${SALAS[sala].icone} ${SALAS[sala].titulo}</h3><div class="thread"></div>`;
+    document.getElementById('answers').appendChild(c);
+  }
+  return c.querySelector('.thread');
+}
+async function askRoom(sala, pergunta) {
+  const turn = document.createElement('div'); turn.className = 'turn';
+  turn.innerHTML = `<div class="q">❯ ${esc(pergunta)}</div><div><span class="spin"></span> <span class="muted">Genie analisando…</span></div>`;
+  card(sala).appendChild(turn);
+  try {
+    const r = await fetch('/api/ask', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({sala, pergunta, conversation_id: convs[sala], sessao})}).then(r => r.json());
+    if (r.conversation_id) convs[sala] = r.conversation_id;
+    turn.lastElementChild.innerHTML =
+      (r.erro ? `<div class="err">${esc(r.erro)}</div>` : '') +
+      (r.texto_html ? `<div class="txt">${r.texto_html}</div>` : (!r.erro && !r.colunas.length ? '<div class="muted">Sem resposta.</div>' : '')) +
+      table(r.colunas, r.linhas) +
+      (r.sql ? `<details><summary>SQL gerado</summary><pre>${esc(r.sql)}</pre></details>` : '');
+  } catch (e) { turn.lastElementChild.innerHTML = `<div class="err">${esc(e)}</div>`; }
+}
+document.getElementById('askForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = document.getElementById('q').value.trim(), salas = selected();
+  if (!q || !salas.length) return;
+  const m = q.replace(/[.\/-]/g, '').match(/\b\d{14}\b/);
+  document.getElementById('cnpjBar').hidden = !m;
+  if (m) { document.getElementById('cnpjFound').textContent = cnpjMask(m[0]); document.getElementById('agendar').href = '/agentes?cnpj=' + m[0]; window._cnpj = m[0]; }
+  const btn = document.getElementById('send'); btn.disabled = true;
+  await Promise.all(salas.map(s => askRoom(s, q)));
+  btn.disabled = false;
+});
+document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+  const salas = c.dataset.salas.split(',');
+  rooms.forEach(r => { const on = salas.includes(r.dataset.sala); r.querySelector('input').checked = on; r.classList.toggle('on', on); });
+  document.getElementById('q').value = c.dataset.q;
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('done')); c.classList.add('done');
+  document.getElementById('askForm').requestSubmit();
+  window.scrollTo({top: document.getElementById('answers').offsetTop - 80, behavior: 'smooth'});
+});
+document.getElementById('reset').onclick = () => { convs = {}; sessao = crypto.randomUUID(); document.getElementById('answers').innerHTML = ''; };
+document.getElementById('analisar').onclick = async () => {
+  const r = await fetch('/api/analisar', {method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({cnpj: window._cnpj})}).then(r => r.json());
+  location.href = r.url + '?exec=' + r.execucao_id;
+};
+</script>
+{% endblock %}

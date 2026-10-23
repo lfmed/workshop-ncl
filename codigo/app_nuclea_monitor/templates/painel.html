@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{{ cnpj | cnpj }} · Nuclea Monitor{% endblock %}
+{% block content %}
+<div class="row" style="justify-content:space-between">
+  <div>
+    <h1>{{ cnpj | cnpj }} {% if ficha %}<span class="muted" style="font-weight:400">· {{ ficha.razao_social }}</span>{% endif %}</h1>
+    <p class="sub">Visão 360º do CNPJ nas bases Núclea · {{ monitores | length }} monitor(es) configurado(s)</p>
+  </div>
+  <div class="row">
+    <button id="rodar">Analisar agora em todas as bases</button>
+    <a class="btn ghost" href="{{ url_for('agentes', cnpj=cnpj) }}">Agendar monitoramento</a>
+  </div>
+</div>
+
+<div class="three">
+  <div class="grid">
+    <div class="card">
+      <h2>Ficha cadastral</h2>
+      {% if ficha %}
+      <div class="kv">
+        <div>Razão social</div><div>{{ ficha.razao_social }}</div>
+        <div>Porte / setor</div><div>{{ ficha.porte }} · {{ ficha.setor }} · {{ ficha.uf }}</div>
+        <div>Abertura</div><div>{{ ficha.data_abertura }}</div>
+        <div>Faturamento decl.</div><div>R$ {{ '{:,.0f}'.format(ficha.faturamento_anual_declarado | float).replace(',', '.') }}</div>
+        <div>Banco principal</div><div>{{ ficha.banco_principal }}</div>
+        <div>Sócio adm.</div><div>{{ ficha.cpf_socio_administrador }}</div>
+        <div>Telefone</div><div>{{ ficha.telefone_contato }}</div>
+        <div>Domínio</div><div>{{ ficha.dominio_email }}</div>
+        <div>Vínculos</div>
+        <div>
+          {% set s, t, d = ficha.cnpjs_mesmo_socio | int, ficha.cnpjs_mesmo_telefone | int, ficha.cnpjs_mesmo_dominio | int %}
+          <span class="{{ 'flag' if s > 0 }}">{{ s }} CNPJs c/ mesmo sócio</span><br>
+          <span class="{{ 'flag' if t > 0 }}">{{ t }} c/ mesmo telefone</span><br>
+          <span class="{{ 'flag' if d > 0 }}">{{ d }} c/ mesmo domínio</span>
+        </div>
+      </div>
+      {% else %}<p class="muted">CNPJ não encontrado no cadastro.</p>{% endif %}
+    </div>
+    <div class="card list">
+      <h2>Histórico de análises</h2>
+      {% for e in execs %}
+        <div style="margin-bottom:6px"><a href="?exec={{ e.id }}" class="{{ 'sel' if atual and e.id == atual.id }}">{{ e.inicio.strftime('%d/%m/%Y %H:%M') }}</a>
+          <span class="muted">· {{ e.origem }}</span>
+          {% if e.nivel_risco %}<span class="pill {{ NIVEL_CLS.get(e.nivel_risco, '') }}">{{ e.nivel_risco }}</span>{% else %}<span class="muted">{{ e.status }}</span>{% endif %}</div>
+      {% else %}<p class="muted">Nenhuma análise ainda.</p>{% endfor %}
+    </div>
+  </div>
+
+  <div class="grid">
+    {% if atual %}
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Parecer consolidado dos agentes</h2>
+        <div>{% if atual.nivel_risco %}<span class="pill {{ NIVEL_CLS.get(atual.nivel_risco, '') }}" style="font-size:13px">Risco {{ atual.nivel_risco }}</span>{% endif %}
+          <span class="muted">{{ atual.inicio.strftime('%d/%m/%Y %H:%M') }} · {{ atual.origem }}</span></div>
+      </div>
+      {% if atual.status in ('Executando', 'Gerando parecer') %}
+        <p id="prog"><span class="spin"></span> <span class="muted">{{ atual.status }}… <span id="nprog">{{ resultados | length }}</span> base(s) concluída(s)</span></p>
+      {% elif atual.parecer %}
+        <div class="parecer">{{ atual.parecer | markdown }}</div>
+      {% endif %}
+    </div>
+    <div class="answers" style="margin-top:0">
+      {% for r in resultados %}
+      <div class="card answer">
+        <h3>{{ SALAS[r.sala].icone }} {{ SALAS[r.sala].titulo }} {% if r.erro %}<span class="pill crit">erro</span>{% endif %}</h3>
+        <div class="q">❯ {{ r.pergunta }}</div>
+        {% if r.erro %}<div class="err">{{ r.erro }}</div>{% endif %}
+        {% if r.texto %}<div class="txt">{{ r.texto | markdown }}</div>{% endif %}
+        {% if r.colunas %}
+        <div class="tbl"><table><thead><tr>{% for c in r.colunas %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+          <tbody>{% for row in r.linhas[:100] %}<tr>{% for v in row %}<td>{{ v | num }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+        {% endif %}
+        {% if r.sql %}<details><summary>SQL gerado</summary><pre>{{ r.sql }}</pre></details>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card"><p class="muted">Ainda não há análises para este CNPJ. Clique em <b>Analisar agora</b> para disparar os agentes em todas as bases.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('rodar').onclick = async (ev) => {
+  ev.target.disabled = true;
+  const r = await fetch('/api/analisar', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({cnpj: '{{ cnpj }}'})}).then(r => r.json());
+  location.href = '?exec=' + r.execucao_id;
+};
+{% if atual and atual.status in ('Executando', 'Gerando parecer') %}
+const poll = setInterval(async () => {
+  const s = await fetch('/api/execucao/{{ atual.id }}').then(r => r.json());
+  document.getElementById('nprog').textContent = s.salas_concluidas;
+  if (!['Executando', 'Gerando parecer'].includes(s.status) || s.salas_concluidas > {{ resultados | length }}) { clearInterval(poll); location.reload(); }
+}, 4000);
+{% endif %}
+</script>
+{% endblock %}

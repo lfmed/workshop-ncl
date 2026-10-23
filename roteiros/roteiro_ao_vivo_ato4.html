@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ato 4 ao vivo · roteiro do apresentador · Núclea × Databricks</title>
+<style>
+/* Paleta Núclea (skill nuclea-identidade-visual). Destaques neon só sobre preto; sobre branco, tons escuros derivados. */
+:root{
+  --preto:#000;--branco:#fff;--verde:#67FFCC;--lilas:#CC99FE;--lima:#DBED1F;--noite:#0E2233;--grafite:#464646;
+  --verde-e:#00795A;--lilas-e:#6B2FC0;--lima-e:#5E6600;--linha:#E4E4E4;--fundo:#F5F5F5;--muted:#6B6B6B;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Calibri,Carlito,"Segoe UI",-apple-system,Roboto,sans-serif;color:var(--grafite);background:var(--fundo);font-size:16px;line-height:1.55}
+a{color:var(--lilas-e)}
+code{background:#EFEFEF;padding:1px 6px;border-radius:4px;font-size:.92em;color:var(--noite)}
+h1,h2,h3{color:var(--preto);line-height:1.2}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* topo */
+.topo{background:var(--preto);color:#fff;position:sticky;top:0;z-index:10}
+.topo .wrap{display:flex;align-items:center;gap:22px;height:58px}
+.logo{font-weight:300;font-size:22px;letter-spacing:2px;color:#fff}
+.logo b{font-weight:300;color:var(--lima)}
+.topo nav{display:flex;gap:16px;flex-wrap:wrap}
+.topo nav a{color:#CFCFCF;text-decoration:none;font-size:14px;padding:18px 0;border-bottom:3px solid transparent}
+.topo nav a:hover{color:var(--verde);border-color:var(--lima)}
+.ini{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--lilas)}
+.ini input{width:70px;padding:6px 8px;border-radius:6px;border:1px solid #555;background:#111;color:var(--verde);font:inherit;text-transform:lowercase}
+
+/* hero */
+.hero{background:var(--preto);color:#fff;display:grid;grid-template-columns:1.25fr 1fr;min-height:420px}
+.hero .txt{padding:56px 48px 56px max(28px,calc((100vw - 1180px)/2 + 28px))}
+.hero h1{color:var(--lilas);font-size:44px;margin:0 0 6px;font-weight:700}
+.pincel{display:block;width:260px;height:10px;background:var(--lima);border-radius:8px 2px 10px 3px;transform:rotate(-1.2deg);margin:14px 0 22px}
+.hero p{color:#E6E6E6;font-size:19px;max-width:620px}
+.hero .lado{background:var(--verde);color:var(--preto);padding:48px;display:flex;flex-direction:column;justify-content:center;clip-path:polygon(14% 0,100% 0,100% 100%,0 100%)}
+.hero .lado .pergunta{font-size:24px;font-weight:700;line-height:1.3;padding-left:12%}
+.hero .lado small{display:block;margin-top:14px;font-size:14px;padding-left:12%}
+.chev{color:var(--lima);font-size:40px;font-weight:700}
+
+/* seções */
+section{padding:54px 0 10px}
+.sec-t{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sec-t h2{font-size:30px;margin:0}
+.num{font-size:15px;font-weight:700;color:var(--preto);background:var(--lima);padding:3px 10px;border-radius:99px}
+.sublinha{height:6px;width:150px;background:var(--lima);border-radius:6px 1px 7px 2px;margin:4px 0 18px}
+.lead{font-size:18px;max-width:900px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 18px}
+.tag{font-size:13px;border:1px solid var(--preto);color:var(--preto);border-radius:99px;padding:2px 10px;background:#fff}
+.tag.sup{background:var(--preto);color:var(--verde);border-color:var(--preto)}
+
+.card{background:#fff;border:1px solid var(--linha);border-radius:12px;padding:20px 22px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2>*,.grid3>*{min-width:0}
+.prompt{overflow-wrap:anywhere}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.hero .lado{clip-path:none}.grid2,.grid3{grid-template-columns:1fr}}
+
+/* passo + prompt */
+.passo{background:#fff;border:1px solid var(--linha);border-left:6px solid var(--preto);border-radius:10px;padding:16px 20px;margin:14px 0}
+.passo h3{margin:0 0 4px;font-size:19px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.onde{font-size:13px;font-weight:700;background:var(--noite);color:var(--verde);padding:2px 9px;border-radius:6px}
+.prompt{position:relative;background:var(--preto);color:#F2F2F2;border-radius:10px;padding:16px 18px 16px 18px;margin:10px 0 6px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;line-height:1.55;white-space:pre-wrap}
+.prompt::before{content:"GENIE CODE ›";display:block;color:var(--lilas);font-weight:700;font-size:11px;letter-spacing:1px;margin-bottom:6px}
+.prompt.cfg::before{content:"COLE NA CONFIGURAÇÃO ›";color:var(--lima)}
+.prompt.sql::before{content:"SQL EDITOR ›";color:var(--verde)}
+.prompt .sk{color:var(--verde);font-weight:700}
+.prompt .ph{color:var(--lima)}
+.copiar{position:absolute;top:10px;right:10px;background:var(--verde);color:var(--preto);border:0;border-radius:6px;padding:5px 11px;font:700 12px Calibri,Carlito,sans-serif;cursor:pointer}
+.copiar:hover{background:#4DF0BB}
+.copiar.ok{background:var(--lima)}
+.fala{border-left:4px solid var(--lilas-e);background:#F7F2FF;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.fala b{color:var(--lilas-e)}
+.check{border-left:4px solid var(--verde-e);background:#EAFFF7;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.check b{color:var(--verde-e)}
+.risco{border-left:4px solid var(--lima-e);background:#F7FAD9;padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--noite)}
+.risco b{color:var(--lima-e)}
+ul.passos{margin:6px 0;padding-left:20px} ul.passos li{margin:3px 0}
+
+/* tabela */
+table{border-collapse:collapse;width:100%;font-size:14.5px;background:#fff}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:var(--preto);color:#fff;font-weight:700}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+
+/* agenda */
+.agenda{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--preto)}
+.agenda div{padding:14px 14px;background:#fff;border-right:1px solid var(--linha)}
+.agenda div:nth-child(odd){background:#FAFAFA}
+.agenda b{display:block;color:var(--preto);font-size:16px}
+.agenda span{font-size:13px;color:var(--muted)}
+.agenda .min{display:inline-block;margin-top:6px;font-size:12px;font-weight:700;background:var(--preto);color:var(--lima);padding:1px 8px;border-radius:99px}
+@media(max-width:900px){.agenda{grid-template-columns:1fr 1fr}}
+
+/* fechamento */
+.fecho{background:var(--preto);color:#fff;margin-top:60px;padding:56px 0}
+.fecho h2{color:var(--lilas);font-size:32px;margin:0}
+.fecho .msg{border:1px solid #333;border-radius:12px;padding:18px;background:#0A0A0A}
+.fecho .msg b{color:var(--verde);display:block;font-size:18px;margin-bottom:4px}
+.fecho .msg p{margin:0;color:#DDD}
+.rodape{color:#9A9A9A;font-size:13px;margin-top:30px}
+.feito{float:right;font-size:13px;color:var(--muted);font-weight:400}
+.feito input{accent-color:var(--verde-e);transform:scale(1.2);vertical-align:-2px}
+@media print{.topo,.copiar{display:none}.prompt{white-space:pre-wrap;break-inside:avoid}.hero{min-height:auto}}
+</style>
+</head>
+<body>
+<div class="topo"><div class="wrap">
+  <div class="logo">Nuclea <b>×</b> databricks</div>
+  <nav><a href="#prep">Preparação</a><a href="#contexto">Como chegamos aqui</a><a href="#ato4">Ato 4 ao vivo</a><a href="#planob">Plano B</a><a href="#ativos">Ativos</a></nav>
+</div></div>
+
+<header class="hero">
+  <div class="txt">
+    <div class="chev">›</div>
+    <h1>Ato 4 ao vivo:<br>o cliente pergunta</h1>
+    <span class="pincel"></span>
+    <p>Roteiro do apresentador para o workspace <b style="color:var(--verde)">fe-sandbox-workshop-nuclea-genie</b>. Os Atos 1 a 3 já estão prontos e são mostrados rapidamente. No Ato 4, carteira, especialistas e sala de crédito já estão prontos: ao vivo, você os coloca para trabalhar e monta o time de agentes <b style="color:var(--verde)">só com o Genie Code</b> na UI do Databricks.</p>
+    <p style="font-size:15px;color:#BDBDBD">Catálogo <code style="background:#1A1A1A;color:var(--verde)">workshop_nuclea_genie_catalog</code> · cerca de 40 min (10 de contexto + 25 ao vivo + 5 de fechamento)</p>
+  </div>
+  <div class="lado">
+    <div class="pergunta">“Como está a minha carteira de crédito de empresas do Varejo, pequeno porte, com presença no Sudeste?”</div>
+    <small><b>Produto (proposta):</b> Monitor de Carteira PJ com agentes, para IPs, cooperativas e bancos médios em autoatendimento, e para grandes bancos via API ou Delta Sharing.</small>
+  </div>
+</header>
+
+<main class="wrap">
+
+<section id="prep">
+  <div class="sec-t"><span class="num">0</span><h2>Preparação (15 min antes)</h2></div><div class="sublinha"></div>
+  <div class="passo">
+    <h3>Checklist <label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos">
+      <li>Ligue o SQL warehouse <b>Serverless Starter Warehouse</b>.</li>
+      <li><b>Acorde o endpoint de score</b> (desliga quando fica ocioso). No SQL editor: <code>SELECT * FROM workshop_nuclea_genie_catalog.lab_ml.score_cnpj('05657016000195')</code>. A primeira chamada pode levar alguns minutos.</li>
+      <li>Abra o painel do Genie Code, comece uma <b>nova conversa</b> e digite <code>@nuclea</code>: as 6 skills devem aparecer. As instruções pessoais (<code>.assistant_instructions.md</code>) já estão na sua pasta.</li>
+      <li>Abas abertas: Google Slides; pipeline <b>nuclea_lab_ingestao_dq</b>; Catalog Explorer em <code>lab_ml.score_inadimplencia_pj</code>; SQL editor vazio; Genie (lista de salas); Agents.</li>
+      <li>Confirme que <code>lab_credito</code> tem <code>carteira_contratos</code> e as 5 funções especialistas, e que a <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1cec8e3cd1aa78283808af847fa25">sala Genie de crédito</a> abre com as SQL functions configuradas.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="contexto">
+  <div class="sec-t"><span class="num">1–3</span><h2>Como chegamos aqui (mostrar, não construir)</h2></div><div class="sublinha"></div>
+  <p class="lead">Dois a três minutos por ato. Mostre o artefato pronto e diga qual skill e qual prompt o Genie Code usou para construí-lo.</p>
+  <div class="grid3">
+    <div class="passo"><h3>Atos 1 e 2 · Ingestão e DQ</h3>
+      <ul class="passos"><li>Abra o <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/pipelines/96a97249-6bdc-42ce-a7aa-3c98c2543274">pipeline</a> e mostre o grafo bronze → silver/quarentena → gold.</li><li>No SQL editor:</li></ul>
+      <div class="prompt sql">SELECT entidade, lote, confere
+FROM workshop_nuclea_genie_catalog.lab_ingestao.vw_dq_reconciliacao
+ORDER BY entidade, lote;</div>
+      <div class="fala"><b>Fala:</b> “2,26 milhões de linhas, 19 de 19 lotes conferidos, e a regra de qualidade achou 3.965 boletos adulterados. Isso vira sinal do agente de alerta.”</div>
+    </div>
+    <div class="passo"><h3>Ato 3 · Score em tempo real</h3>
+      <ul class="passos"><li>Mostre o modelo <code>lab_ml.score_inadimplencia_pj</code> com o alias <b>@champion</b> e o endpoint <b>nuclea-score-inadimplencia</b>.</li><li>No SQL editor:</li></ul>
+      <div class="prompt sql">SELECT * FROM workshop_nuclea_genie_catalog.lab_ml.score_cnpj('05.657.016/0001-95');</div>
+      <div class="fala"><b>Fala:</b> “O modelo virou uma função governada: cerca de 250 ms e o mesmo controle de acesso. Daqui a pouco ele vira ferramenta de um agente.”</div>
+    </div>
+    <div class="passo"><h3>O que já está pronto do Ato 4</h3>
+      <div class="prompt sql">SELECT * FROM workshop_nuclea_genie_catalog.lab_credito.resumo_carteira(
+  '42691787', 'Varejo', 'Pequeno', 'Sudeste');</div>
+      <div class="check"><b>Esperado:</b> minha carteira com 622 contratos, R$ 27,92 mi e 4,02%; mercado com 6.258 contratos, R$ 260,33 mi e 4,64%.</div>
+      <div class="fala"><b>Fala:</b> “Este é um dos cinco especialistas. Os outros quatro e a sala Genie de crédito já estão prontos; agora vamos colocá-los para trabalhar juntos.”</div>
+    </div>
+  </div>
+</section>
+
+<section id="ato4">
+  <div class="sec-t"><span class="num">Ato 4</span><h2>Ao vivo no Genie Code</h2></div><div class="sublinha"></div>
+
+  <div class="passo">
+    <h3>4.1 Conhecer os especialistas <span class="onde">SQL editor → Genie Code</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Prontos em <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_credito">lab_credito</a>: <code>resumo_carteira</code>, <code>quebra_carteira</code>, <code>evolucao_carteira</code>, <code>maiores_exposicoes</code> e <code>sinais_alerta</code>.</p>
+    <div class="prompt"><span class="sk">@nuclea-monitoramento-credito</span> Explique o que fazem as funções de workshop_nuclea_genie_catalog.lab_credito e rode quebra_carteira por UF e sinais_alerta para o ISPB 42691787, Varejo, Pequeno, Sudeste. Resuma os achados em uma tabela.</div>
+    <div class="fala"><b>Mostre:</b> o Genie Code lendo os COMMENTs das funções no Unity Catalog para entender cada especialista. “A documentação da função é o manual do agente.”</div>
+    <div class="check"><b>Checkpoint:</b> <code>quebra_carteira</code> por UF dá SP 64,3%, MG 17,9%, RJ 13,8% e ES 4,0% do saldo, com MG a 4,51% contra 3,10% do mercado. <code>sinais_alerta</code> traz no topo Gonçalves da Mota (8 pontos: inadimplente, score caiu 116 pontos, boleto adulterado).</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.2 Conferir os números <span class="onde">SQL editor → Genie Code</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <div class="prompt">Valide os agentes: compare lado a lado lab_credito.resumo_carteira('42691787','Varejo','Pequeno','Sudeste') com um SQL direto sobre carteira_contratos com os mesmos filtros (porte MEI/ME/EPP, UF SP/RJ/MG/ES, status diferente de Liquidado). Mostre a diferença de cada métrica.</div>
+    <div class="fala"><b>Fala:</b> “Agente sem validação não vai para cliente. Aqui a diferença é zero.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.3 Sala Genie de crédito (pronta) <span class="onde">Genie → <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1cec8e3cd1aa78283808af847fa25">Nuclea - Monitoramento de Credito</a></span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos"><li>Mostre em <i>Configure</i>: a tabela <code>carteira_contratos</code>, as instruções e as 5 <i>SQL functions</i>, que foram anexadas pela API porque a UI não permitiu.</li><li>Pergunte:</li></ul>
+    <div class="prompt">Para o ISPB 42691787: como está a minha carteira de crédito de empresas do segmento varejo, pequeno porte, com presença na região sudeste? Compare com o mercado.</div>
+    <div class="prompt">Para o ISPB 42691787: quais tomadores de Varejo, pequeno porte, no Sudeste eu devo olhar primeiro e por quê?</div>
+    <div class="check"><b>Esperado:</b> a sala chama <code>resumo_carteira</code> e depois <code>sinais_alerta</code> (abra o SQL gerado e mostre a função sendo usada). Minha carteira: 622 contratos, R$ 27,92 mi e 4,02%; mercado: 6.258 contratos, R$ 260,33 mi e 4,64%. Gonçalves da Mota no topo dos sinais.</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.4 O time de agentes: Supervisor <span class="onde">Agents → Supervisor Agent</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <ul class="passos"><li>Nome <b>supervisor-credito-nuclea</b>. Subagentes: a <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1cec8e3cd1aa78283808af847fa25">sala de crédito</a> (já com as funções), <b>Nuclea - Risco e Fraude</b> e <b>Nuclea - Boletos (PCR e SILOC)</b>. Ferramentas: as 5 funções de <code>lab_credito</code> e <code>lab_ml.score_cnpj</code>. Em <i>Instructions</i>, cole:</li></ul>
+    <div class="prompt cfg">Você é o orquestrador de monitoramento de crédito da Núclea. Coordene especialistas:
+- Carteira (resumo, quebra, safras), Exposição (maiores tomadores), Alerta Precoce (sinais_alerta): UC functions;
+- Investigador: salas Genie de Risco e Boletos, apenas para 1 a 3 CNPJs críticos;
+- Score ML: score_cnpj para os maiores tomadores e os que têm sinais de alerta.
+Nunca invente números; chame as ferramentas antes de responder e compare sempre com o mercado.
+Formato: Resumo executivo; Indicadores vs mercado; Tendência (safras); Concentração; Sinais de alerta; Recomendações.</div>
+    <div class="prompt">Sou a instituição ISPB 42691787. Como está a minha carteira de crédito de empresas do segmento varejo, pequeno porte, com presença na região sudeste? Depois investigue os 2 tomadores mais críticos em boletos e risco e me dê o score do modelo de cada um.</div>
+    <div class="risco"><b>Se a UI não aceitar UC functions como ferramentas:</b> use só as salas Genie como subagentes. A sala de crédito já contém as 5 funções.</div>
+    <div class="fala"><b>Clímax:</b> abra o trace e mostre quais especialistas foram acionados e com quais filtros. “O cientista não precisou estar na sala.”</div>
+  </div>
+
+  <div class="passo">
+    <h3>4.5 O próprio Genie Code como agente de crédito <span class="onde">Genie Code → Settings → MCP → UC Functions</span><label class="feito"><input type="checkbox"> feito</label></h3>
+    <p>Adicione as funções de <code>workshop_nuclea_genie_catalog.lab_credito</code> como servidor MCP. Depois, no painel do Genie Code:</p>
+    <div class="prompt"><span class="sk">@nuclea-monitoramento-credito</span> Usando as ferramentas de lab_credito, quais tomadores da carteira do ISPB 42691787 (Varejo, pequeno porte, Sudeste) eu devo olhar primeiro e por quê? Monte uma tabela com saldo, sinais e ação recomendada.</div>
+    <div class="check"><b>Esperado entre os destaques:</b> Novais Moreira S.A. (score caiu 173 pontos, faixa D, 2 alertas em aberto) e Gonçalves da Mota (inadimplente, com boleto adulterado confirmado).</div>
+  </div>
+
+  <div class="passo" style="border-left-color:var(--verde-e)">
+    <h3>Fechamento (5 min) <span class="onde">Google Slides 18–21</span></h3>
+    <ul class="passos"><li><b>Governança:</b> cada instituição vê só a própria carteira e os agregados de mercado. No produto, o ISPB vem do login, nunca do LLM. A permissão <code>EXECUTE</code> vale igual para pessoas e agentes.</li>
+      <li><b>Valor:</b> 53,8% dos tomadores têm crédito em mais de uma instituição, e só a Núclea vê o tomador inteiro. R$ 944,8 mi de saldo ativo têm sinais de deterioração, então ainda dá para agir antes da perda.</li></ul>
+  </div>
+</section>
+
+<section id="planob">
+  <div class="sec-t"><span class="num">B</span><h2>Plano B</h2></div><div class="sublinha"></div>
+  <table>
+    <tr><th>Se falhar…</th><th>Faça</th></tr>
+    <tr><td>4.1: o Genie Code demora a responder</td><td>Rode direto no SQL editor: <code>SELECT * FROM workshop_nuclea_genie_catalog.lab_credito.quebra_carteira('42691787','uf','Varejo','Pequeno','Sudeste')</code></td></tr>
+    <tr><td>Alguma função foi apagada ou alterada</td><td>Recrie com o notebook <code>/Users/leandro.medeiros@databricks.com/nuclea_workshop/plano_b/ato4_gabarito_ferramentas</code> (já testado)</td></tr>
+    <tr><td>Score lento na primeira chamada</td><td>É o scale-to-zero. Repita depois de 1 a 2 minutos ou siga sem o Score ML</td></tr>
+    <tr><td>Supervisor indisponível ou lento</td><td>Faça a pergunta na <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1cec8e3cd1aa78283808af847fa25">sala Genie de crédito</a> (4.3) e no Genie Code com MCP (4.5)</td></tr>
+    <tr><td>Tudo travou</td><td>Mostre o app de referência no workspace antigo: <a target="_blank" href="https://nuclea-monitor-7474655310823050.aws.databricksapps.com/carteira">nuclea-monitor → Carteira de crédito</a></td></tr>
+  </table>
+</section>
+
+<section id="ativos">
+  <div class="sec-t"><h2>Ativos no workspace novo</h2></div><div class="sublinha"></div>
+  <table>
+    <tr><th>Ativo</th><th>Onde</th></tr>
+    <tr><td>Dados de origem (18 tabelas, 5.186.912 linhas, migrados e conferidos)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog">workshop_nuclea_genie_catalog</a></td></tr>
+    <tr><td>Pipeline de ingestão e DQ</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/pipelines/96a97249-6bdc-42ce-a7aa-3c98c2543274">nuclea_lab_ingestao_dq</a></td></tr>
+    <tr><td>Job de orquestração</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/jobs/789766381784946">nuclea_lab_ingestao_orquestracao</a></td></tr>
+    <tr><td>Modelo @champion</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/models/workshop_nuclea_genie_catalog/lab_ml/score_inadimplencia_pj">lab_ml.score_inadimplencia_pj</a></td></tr>
+    <tr><td>Endpoint</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/ml/endpoints/nuclea-score-inadimplencia">nuclea-score-inadimplencia</a></td></tr>
+    <tr><td>Sala Genie de crédito (com as 5 SQL functions)</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1cec8e3cd1aa78283808af847fa25">Nuclea - Monitoramento de Credito</a></td></tr>
+    <tr><td>Carteira + 5 funções especialistas</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/explore/data/workshop_nuclea_genie_catalog/lab_credito/carteira_contratos">lab_credito.carteira_contratos</a></td></tr>
+    <tr><td>Salas Genie por base</td><td><a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e0056147289db45f022487b78">Boletos (PCR e SILOC)</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e027b14088e24e6b57f895e12">Cartoes (R2C3 e SLC)</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e049a1c0e8df1f9772fee2cc2">Duplicatas Escriturais</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e063413fe998b02944c16a758">Credito (CTC e C3)</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e07c71596b8e10615d55cc717">Pix Automatico</a> · <a target="_blank" href="https://fe-sandbox-workshop-nuclea-genie.cloud.databricks.com/genie/rooms/01f1ce4e098a187790041796a4dc6ae4">Risco e Fraude</a></td></tr>
+    <tr><td>Skills e instruções do Genie Code</td><td><code>/Users/leandro.medeiros@databricks.com/.assistant/skills/</code> · <code>.assistant_instructions.md</code></td></tr>
+  </table>
+</section>
+</main>
+
+<div class="fecho"><div class="wrap">
+  <div class="chev">›</div><h2>Mensagem final</h2><span class="pincel" style="width:200px"></span>
+  <p style="margin-top:18px;color:#DDD;font-size:20px">A cabeça do cientista virou skill, as skills viraram agentes governados, e os agentes viram um produto que só a Núclea pode oferecer.</p>
+  <div class="rodape">Dados sintéticos · workspace fe-sandbox-workshop-nuclea-genie · cores conforme a skill nuclea-identidade-visual</div>
+</div></div>
+
+<script>
+document.querySelectorAll('.prompt').forEach(p => {
+  const b = document.createElement('button'); b.className = 'copiar'; b.type = 'button'; b.textContent = 'Copiar';
+  b.onclick = async () => { const t = p.cloneNode(true); t.querySelector('.copiar')?.remove();
+    await navigator.clipboard.writeText(t.textContent.trim()); b.textContent = 'Copiado ✓'; b.classList.add('ok');
+    setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500); };
+  p.appendChild(b);
+});
+document.querySelectorAll('.feito input').forEach((c, i) => {
+  c.checked = localStorage.getItem('ato4_feito_' + i) === '1';
+  c.onchange = () => localStorage.setItem('ato4_feito_' + i, c.checked ? '1' : '0');
+});
+</script>
+</body>
+</html>

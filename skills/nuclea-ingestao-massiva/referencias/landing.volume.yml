@@ -1,0 +1,8 @@
+resources:
+  volumes:
+    landing:
+      catalog_name: ${var.catalog}
+      schema_name: ${var.schema}
+      name: landing
+      volume_type: MANAGED
+      comment: "Zona de pouso (landing) - arquivos brutos CSV/JSON/Parquet que chegam em lotes. Dados SINTETICOS para workshop."

@@ -1,0 +1,23 @@
+{
+  "name": "nuclea-score-inadimplencia",
+  "config": {
+    "served_entities": [{
+      "name": "score-inadimplencia-pj",
+      "entity_name": "workshop_nuclea_genie_catalog.lab_ml.score_inadimplencia_pj",
+      "entity_version": "1",
+      "workload_size": "Small",
+      "scale_to_zero_enabled": true
+    }],
+    "traffic_config": {"routes": [{"served_model_name": "score-inadimplencia-pj", "traffic_percentage": 100}]}
+  },
+  "ai_gateway": {
+    "inference_table_config": {
+      "enabled": true,
+      "catalog_name": "workshop_nuclea_genie_catalog",
+      "schema_name": "lab_ml",
+      "table_name_prefix": "score_inadimplencia"
+    },
+    "usage_tracking_config": {"enabled": true}
+  },
+  "tags": [{"key": "projeto", "value": "nuclea-genie-tema5"}]
+}

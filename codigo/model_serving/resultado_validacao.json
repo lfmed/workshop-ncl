@@ -1,0 +1,149 @@
+{
+  "latencia_ms_p50": 307.3,
+  "latencia_ms_p95": 358.3,
+  "latencia_ms_lote_20": 263.2,
+  "prob_media_inadimplentes": 0.4902,
+  "prob_media_adimplentes": 0.1422,
+  "resultados": [
+    {
+      "cnpj": "05657016000195",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.994253,
+      "score": 6,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "15511643000177",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.43572,
+      "score": 564,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "27622058000123",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.614424,
+      "score": 386,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "03056188000188",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.522213,
+      "score": 478,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "22543715000123",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.6013,
+      "score": 399,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "16232272000157",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.578435,
+      "score": 422,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "54933557000104",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.377949,
+      "score": 622,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "05955674000163",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.03114,
+      "score": 969,
+      "faixa_risco": "B"
+    },
+    {
+      "cnpj": "47727267000149",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.646727,
+      "score": 353,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "35879311000157",
+      "inadimplente": 1,
+      "prob_inadimplencia": 0.099525,
+      "score": 900,
+      "faixa_risco": "C"
+    },
+    {
+      "cnpj": "08987519000117",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.539775,
+      "score": 460,
+      "faixa_risco": "E"
+    },
+    {
+      "cnpj": "23963480000191",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.093021,
+      "score": 907,
+      "faixa_risco": "C"
+    },
+    {
+      "cnpj": "33210608000108",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.134699,
+      "score": 865,
+      "faixa_risco": "C"
+    },
+    {
+      "cnpj": "05344779000186",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.155816,
+      "score": 844,
+      "faixa_risco": "D"
+    },
+    {
+      "cnpj": "76259424000137",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.029028,
+      "score": 971,
+      "faixa_risco": "A"
+    },
+    {
+      "cnpj": "60431607000158",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.04687,
+      "score": 953,
+      "faixa_risco": "B"
+    },
+    {
+      "cnpj": "18101156000124",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.04798,
+      "score": 952,
+      "faixa_risco": "B"
+    },
+    {
+      "cnpj": "52272773000120",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.040816,
+      "score": 959,
+      "faixa_risco": "B"
+    },
+    {
+      "cnpj": "92121181000122",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.147974,
+      "score": 852,
+      "faixa_risco": "C"
+    },
+    {
+      "cnpj": "67041708000161",
+      "inadimplente": 0,
+      "prob_inadimplencia": 0.186485,
+      "score": 814,
+      "faixa_risco": "D"
+    }
+  ]
+}
